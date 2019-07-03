@@ -1,7 +1,7 @@
 #include "mbed.h"
 #include "rtos.h"
 #include "MS5611Sensor.h"
-#include "Sht31.h"
+#include "SHT31Sensor.h"
 
 // how many packets in error correction group
 #define FEC_GROUP_SIZE 5
@@ -19,28 +19,13 @@ Queue<SensorData, 16> radioQueue;
 Queue<SensorData, FEC_GROUP_SIZE> encoderQueue;
 
 MS5611Sensor MS5611(P0_22, P0_23);
+SHT31Sensor SHT31(P0_22, P0_23);
 
 
 void buttonPress()
 {
     led = !led;
 }
-
-void shtTask()
-{
-    Sht31 sht(P0_22, P0_23); 
-
-    pc.printf("SHT31 started\n");
-
-    while(1) {
-        double temp = sht.readTemperature();
-        double hum = sht.readHumidity();
-
-        pc.printf("ShtT: %.2f degC ShtH: %.1f%%\n", temp, hum);
-        wait(2.0);
-    }
-}
-
 
 int main(void)
 {
@@ -50,19 +35,26 @@ int main(void)
     MS5611.setQueue(&sdQueue);
     MS5611.start(1000);
 
-    // sht31_th.start(shtTask);
+    SHT31.setQueue(&sdQueue);
+    SHT31.start(1000);
 
     while (true) {
         osEvent evt = sdQueue.get();
         if (evt.status == osEventMessage) {
-            pc.printf("Queue data:\n");
-
             SensorData *data = (SensorData*) evt.value.p;
 
             switch (data->type) {
                 case DataTypes::MS5611_dt:
-                pc.printf("Temp: %.2f degC Barometer: %.1f mB\n",
-                    ((MS5611Data*)data)->temperature, ((MS5611Data*)data)->pressure
+                pc.printf("Temp: %.2f degC Barometer: %.2f mB\n",
+                    ((MS5611Data*)data)->temperature,
+                    ((MS5611Data*)data)->pressure
+                );
+                break;
+
+                case DataTypes::SHT31_dt:
+                pc.printf("Temp: %.2f degC Hum: %.2f%%\n",
+                    ((SHT31Data*)data)->temperature,
+                    ((SHT31Data*)data)->humidity
                 );
                 break;
 
@@ -70,8 +62,6 @@ int main(void)
                 pc.printf("Unknown type\n");
                 break;
             }
-
-            pc.printf("\n\n");
 
             Sensor::free(data);
         }

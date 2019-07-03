@@ -22,14 +22,13 @@ public:
 
 protected:
     virtual int setup() = 0;
-    virtual SensorData* read() = 0;
-
-    static MemoryPool<SensorDataUnion, DATA_QUEUE_SIZE> _memPool;
+    virtual int read(SensorData*) = 0;
 
 private:
     int _delay_ms;
 
     Queue<SensorData, DATA_QUEUE_SIZE> *_dataQueue;
+    static MemoryPool<SensorDataUnion, DATA_QUEUE_SIZE> _memPool;
 
     Thread _sensor_thread;
     void _sensor_task();
