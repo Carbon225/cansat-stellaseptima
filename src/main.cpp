@@ -1,25 +1,22 @@
 #include "mbed.h"
 #include "rtos.h"
+
 #include "MS5611Sensor.h"
 #include "SHT31Sensor.h"
 
-// how many packets in error correction group
-#define FEC_GROUP_SIZE 5
+#include "SizedQueue.h"
+#include "SizedMempool.h"
 
-Serial pc(P0_3, P0_2);
+Serial pc(USBTX, USBRX);
 
-DigitalOut led(P0_7, 1);
-InterruptIn button(P0_21, PullUp);
+DigitalOut led(LED1, 0);
+InterruptIn button(BUTTON1, PullUp);
 
-Thread sht31_th;
+SizedQueue<SensorData, MBED_CONF_APP_FEC_GROUP_SIZE> fecQueue;
+SizedMempool<SensorDataUnion, MBED_CONF_APP_SENSOR_MEMPOOL_SIZE> sensorMempool;
 
-
-Queue<SensorData, DATA_QUEUE_SIZE> sdQueue;
-Queue<SensorData, 16> radioQueue;
-Queue<SensorData, FEC_GROUP_SIZE> encoderQueue;
-
-MS5611Sensor MS5611(P0_22, P0_23);
-SHT31Sensor SHT31(P0_22, P0_23);
+MS5611Sensor MS5611(MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL);
+SHT31Sensor SHT31(MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL);
 
 
 void buttonPress()
@@ -32,14 +29,14 @@ int main(void)
     button.fall(buttonPress);
     pc.baud(115200);
 
-    MS5611.setQueue(&sdQueue);
+    MS5611.setQueue(&fecQueue, &sensorMempool);
     MS5611.start(1000);
 
-    SHT31.setQueue(&sdQueue);
+    SHT31.setQueue(&fecQueue, &sensorMempool);
     SHT31.start(1000);
 
     while (true) {
-        osEvent evt = sdQueue.get();
+        osEvent evt = fecQueue.get();
         if (evt.status == osEventMessage) {
             SensorData *data = (SensorData*) evt.value.p;
 
@@ -63,7 +60,7 @@ int main(void)
                 break;
             }
 
-            Sensor::free(data);
+            sensorMempool.free((SensorDataUnion*)data);
         }
     }
 

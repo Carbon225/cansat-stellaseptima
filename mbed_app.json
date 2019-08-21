@@ -1,0 +1,16 @@
+{
+    "config": {
+        "fec-group-size": {
+            "value": 5
+        },
+        "sensor-mempool-size": {
+            "value": 32
+        },
+        "i2c1-sda": {
+            "value": "P0_22"
+        },
+        "i2c1-scl": {
+            "value": "P0_23"
+        }
+    }
+}

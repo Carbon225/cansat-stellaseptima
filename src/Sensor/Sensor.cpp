@@ -3,13 +3,6 @@
 extern Serial pc;
 
 
-MemoryPool<SensorDataUnion, DATA_QUEUE_SIZE> Sensor::_memPool;
-
-osStatus Sensor::free(SensorData *block)
-{
-    return _memPool.free((SensorDataUnion*) block);
-}
-
 Sensor::Sensor()
 : _dataQueue(nullptr), _delay_ms(10)
 {
@@ -21,9 +14,10 @@ Sensor::~Sensor()
 
 }
 
-void Sensor::setQueue(Queue<SensorData, DATA_QUEUE_SIZE> *queue)
+void Sensor::setQueue(QueueInterface<SensorData> *queue, MempoolInterface<SensorDataUnion> *memPool)
 {
     _dataQueue = queue;
+    _memPool = memPool;
 }
 
 void Sensor::start(int delay_ms)
@@ -48,7 +42,7 @@ void Sensor::_sensor_task()
 
     while (true) {
         // alocate space for new data object
-        SensorData *data = (SensorData*)_memPool.alloc();
+        SensorData *data = (SensorData*)_memPool->alloc();
         if (!data) {
             pc.printf("Mempool alloc error\n");
         }
@@ -59,7 +53,7 @@ void Sensor::_sensor_task()
             }
             // if data wasn't queued free allocated space
             else {
-                _memPool.free((SensorDataUnion*)data);
+                _memPool->free((SensorDataUnion*)data);
             }
         }
 
