@@ -12,5 +12,21 @@
         "i2c1-scl": {
             "value": "P0_23"
         }
+    },
+    "target_overrides": {
+        "*": {
+            "platform.all-stats-enabled": 1,
+            "platform.default-serial-baud-rate": 115200,
+            "platform.stdio-baud-rate": 115200
+        },
+        "NRF52_DK": {
+            "target.features_add": ["STORAGE"],
+            "target.components_add": ["SD"],
+            "sd.SPI_MOSI": "P0_2",
+            "sd.SPI_MISO": "P0_26",
+            "sd.SPI_CLK": "P0_27",
+            "sd.SPI_CS": "P0_11",
+            "sd.CMD_TIMEOUT": 1000
+        }
     }
 }

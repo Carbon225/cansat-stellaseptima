@@ -1,10 +1,7 @@
 #include "Sensor.h"
 
-extern Serial pc;
-
-
 Sensor::Sensor()
-: _dataQueue(nullptr), _delay_ms(10)
+: _dataQueue(nullptr), _memPool(nullptr), _store(nullptr), _delay_ms(10)
 {
 
 }
@@ -12,6 +9,11 @@ Sensor::Sensor()
 Sensor::~Sensor()
 {
 
+}
+
+void Sensor::setDataStore(SensorDataStore *store)
+{
+    _store = store;
 }
 
 void Sensor::setQueue(QueueInterface<SensorData> *queue, MempoolInterface<SensorDataUnion> *memPool)
@@ -35,23 +37,23 @@ void Sensor::_sensor_task()
 {
     int ret = setup();
     if (ret != MBED_SUCCESS) {
-        pc.printf("Sensor returned error code %d\n", ret);
+        printf("Sensor returned error code %d\n", ret);
 
         return;
     }
 
     while (true) {
-        // alocate space for new data object
         SensorData *data = (SensorData*)_memPool->alloc();
         if (!data) {
-            pc.printf("Mempool alloc error\n");
+            printf("Mempool alloc error\n");
         }
         else {
-            // if sensor was read and queue exists add data to queue
             if (read(data) == MBED_SUCCESS && _dataQueue) {
                 _dataQueue->put(data);
+                if (_store) {
+                    _store->saveData(data);
+                }
             }
-            // if data wasn't queued free allocated space
             else {
                 _memPool->free((SensorDataUnion*)data);
             }

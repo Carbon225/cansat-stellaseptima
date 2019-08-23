@@ -14,8 +14,8 @@ public:
     ~SHT31Sensor();
 
 protected:
-    virtual int setup() override;
-    virtual int read(SensorData*) override;
+    virtual mbed_error_status_t setup() override;
+    virtual mbed_error_status_t read(SensorData*) override;
 
 private:
     
