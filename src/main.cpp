@@ -7,7 +7,10 @@
 #include "SizedQueue.h"
 #include "SizedMempool.h"
 
+#include "SDBlockDevice.h"
 #include "FSDataStore.h"
+
+#include "CansatBLE.h"
 
 Serial pc(USBTX, USBRX);
 
@@ -82,11 +85,29 @@ void sdTest()
     bd->deinit();
 }
 
+EventQueue event_queue(/* event count */ 10 * EVENTS_EVENT_SIZE);
+
+Thread event_thread;
+
+void schedule_ble_events(BLE::OnEventsToProcessCallbackContext *context) {
+    event_queue.call(Callback<void()>(&context->ble, &BLE::processEvents));
+}
+
 int main(void)
 {
+    printf("Starting...\n");
+
+    event_thread.start(callback(&event_queue, &EventQueue::dispatch_forever));
+
     button.fall(buttonPress);
 
-    sdTest();
+    BLE &ble = BLE::Instance();
+    ble.onEventsToProcess(schedule_ble_events);
+ 
+    static CansatBLE demo(ble, event_queue);
+    demo.start();
+
+    // sdTest();
 
     MS5611.setQueue(&fecQueue, &sensorMempool);
     MS5611.start(1000);
@@ -98,6 +119,7 @@ int main(void)
         osEvent evt = fecQueue.get();
         if (evt.status == osEventMessage) {
             SensorData *data = (SensorData*) evt.value.p;
+            static char blemsg[64] = {'\0'};
 
             switch (data->type) {
                 case DataTypes::MS5611_dt:
@@ -105,6 +127,13 @@ int main(void)
                     ((MS5611Data*)data)->temperature,
                     ((MS5611Data*)data)->pressure
                 );
+
+                sprintf(blemsg, "Temp: %.2f degC Barometer: %.2f mB\n",
+                    ((MS5611Data*)data)->temperature,
+                    ((MS5611Data*)data)->pressure
+                );
+
+                demo.uart()->writeString(blemsg);
                 break;
 
                 case DataTypes::SHT31_dt:
@@ -112,6 +141,13 @@ int main(void)
                     ((SHT31Data*)data)->temperature,
                     ((SHT31Data*)data)->humidity
                 );
+
+                sprintf(blemsg, "Temp: %.2f degC Hum: %.2f%%\n",
+                    ((SHT31Data*)data)->temperature,
+                    ((SHT31Data*)data)->humidity
+                );
+
+                demo.uart()->writeString(blemsg);
                 break;
 
                 default:
