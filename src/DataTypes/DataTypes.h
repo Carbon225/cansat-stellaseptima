@@ -37,6 +37,7 @@ union SensorDataUnion
 {
     SensorData a;
     MS5611Data b;
+    SHT31Data c;
 };
 
 #endif // _DATATYPES_H_

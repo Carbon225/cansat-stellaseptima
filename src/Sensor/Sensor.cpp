@@ -1,18 +1,7 @@
 #include "Sensor.h"
 
-extern Serial pc;
-
-
-MemoryPool<SensorDataUnion, DATA_QUEUE_SIZE> Sensor::_memPool;
-
-osStatus Sensor::free(SensorData *block)
-{
-    pc.printf("Freeing mempool\n");
-    return _memPool.free((SensorDataUnion*) block);
-}
-
 Sensor::Sensor()
-: _dataQueue(nullptr), _delay_ms(10)
+: _dataQueue(nullptr), _memPool(nullptr), _store(nullptr), _delay_ms(10)
 {
 
 }
@@ -22,9 +11,15 @@ Sensor::~Sensor()
 
 }
 
-void Sensor::setQueue(Queue<SensorData, DATA_QUEUE_SIZE> *queue)
+void Sensor::setDataStore(SensorDataStore *store)
+{
+    _store = store;
+}
+
+void Sensor::setQueue(QueueInterface<SensorData> *queue, MempoolInterface<SensorDataUnion> *memPool)
 {
     _dataQueue = queue;
+    _memPool = memPool;
 }
 
 void Sensor::start(int delay_ms)
@@ -41,18 +36,27 @@ void Sensor::stop()
 void Sensor::_sensor_task()
 {
     int ret = setup();
-    if (ret != 0) {
-        pc.printf("Sensor return error code %d\n", ret);
+    if (ret != MBED_SUCCESS) {
+        printf("Sensor returned error code %d\n", ret);
 
         return;
     }
 
     while (true) {
-        SensorData *data = read();
-        
-        if (_dataQueue && data) {
-            pc.printf("Adding to queue\n");
-            _dataQueue->put(data);
+        SensorData *data = (SensorData*)_memPool->alloc();
+        if (!data) {
+            printf("Mempool alloc error\n");
+        }
+        else {
+            if (read(data) == MBED_SUCCESS && _dataQueue) {
+                _dataQueue->put(data);
+                if (_store) {
+                    _store->saveData(data);
+                }
+            }
+            else {
+                _memPool->free((SensorDataUnion*)data);
+            }
         }
 
         wait_ms(_delay_ms);

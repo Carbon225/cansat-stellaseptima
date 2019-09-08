@@ -1,24 +1,27 @@
 #include "mbed.h"
 #include "rtos.h"
+
 #include "MS5611Sensor.h"
-#include "Sht31.h"
+#include "SHT31Sensor.h"
 
-// how many packets in error correction group
-#define FEC_GROUP_SIZE 5
+#include "SizedQueue.h"
+#include "SizedMempool.h"
 
-Serial pc(P0_3, P0_2);
+#include "SDBlockDevice.h"
+#include "FSDataStore.h"
 
-DigitalOut led(P0_7, 1);
-InterruptIn button(P0_21, PullUp);
+#include "CansatBLE.h"
 
-Thread sht31_th;
+Serial pc(USBTX, USBRX);
 
+DigitalOut led(LED1, 0);
+InterruptIn button(BUTTON1, PullUp);
 
-Queue<SensorData, DATA_QUEUE_SIZE> sdQueue;
-Queue<SensorData, 16> radioQueue;
-Queue<SensorData, FEC_GROUP_SIZE> encoderQueue;
+SizedQueue<SensorData, MBED_CONF_APP_FEC_GROUP_SIZE> fecQueue;
+SizedMempool<SensorDataUnion, MBED_CONF_APP_SENSOR_MEMPOOL_SIZE> sensorMempool;
 
-MS5611Sensor MS5611(P0_22, P0_23);
+MS5611Sensor MS5611(MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL);
+SHT31Sensor SHT31(MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL);
 
 
 void buttonPress()
@@ -26,54 +29,133 @@ void buttonPress()
     led = !led;
 }
 
-void shtTask()
+void sdTest()
 {
-    Sht31 sht(P0_22, P0_23); 
+    BlockDevice *bd = BlockDevice::get_default_instance();
+    FileSystem *fs = FileSystem::get_default_instance();
 
-    pc.printf("SHT31 started\n");
-
-    while(1) {
-        double temp = sht.readTemperature();
-        double hum = sht.readHumidity();
-
-        pc.printf("ShtT: %.2f degC ShtH: %.1f%%\n", temp, hum);
-        wait(2.0);
+    printf("SD init... ");
+    fflush(stdout);
+    if (bd->init() != 0) {
+        printf("Fail\n");
+        return;
     }
+
+    printf("OK\n");
+
+    printf("Mounting the filesystem... ");
+    fflush(stdout);
+    int err = fs->mount(bd);
+    
+    printf("%s\n", (err ? "Fail :(" : "OK"));
+    if (err) {
+        printf("No filesystem found, formatting... ");
+        fflush(stdout);
+        err = fs->reformat(bd);
+        printf("%s\n", (err ? "Fail :(" : "OK"));
+        if (err) {
+            error("error: %s (%d)\n", strerror(-err), err);
+        }
+    }
+
+    static FSDataStore store(fs);
+    SHT31.setDataStore(&store);
+    MS5611.setDataStore(&store);
+
+    // Display the root directory
+    printf("Opening the root directory... ");
+    fflush(stdout);
+    DIR *d = opendir("/fs/");
+    printf("%s\n", (!d ? "Fail :(" : "OK"));
+    if (!d) {
+        error("error: %s (%d)\n", strerror(errno), -errno);
+    }
+
+    printf("root directory:\n");
+    while (true) {
+        struct dirent *e = readdir(d);
+        if (!e) {
+            break;
+        }
+
+        printf("    %s\n", e->d_name);
+    }
+
+    fs->unmount();
+    bd->deinit();
 }
 
+EventQueue event_queue(/* event count */ 10 * EVENTS_EVENT_SIZE);
+
+Thread event_thread;
+
+void schedule_ble_events(BLE::OnEventsToProcessCallbackContext *context) {
+    event_queue.call(Callback<void()>(&context->ble, &BLE::processEvents));
+}
 
 int main(void)
 {
-    button.fall(buttonPress);
-    pc.baud(115200);
+    printf("Starting...\n");
 
-    MS5611.setQueue(&sdQueue);
+    event_thread.start(callback(&event_queue, &EventQueue::dispatch_forever));
+
+    button.fall(buttonPress);
+
+    BLE &ble = BLE::Instance();
+    ble.onEventsToProcess(schedule_ble_events);
+ 
+    static CansatBLE demo(ble, event_queue);
+    demo.start();
+
+    // sdTest();
+
+    MS5611.setQueue(&fecQueue, &sensorMempool);
     MS5611.start(1000);
 
-    // sht31_th.start(shtTask);
+    SHT31.setQueue(&fecQueue, &sensorMempool);
+    SHT31.start(1000);
 
     while (true) {
-        osEvent evt = sdQueue.get();
+        osEvent evt = fecQueue.get();
         if (evt.status == osEventMessage) {
-            pc.printf("Queue data:\n");
-
             SensorData *data = (SensorData*) evt.value.p;
+            static char blemsg[64] = {'\0'};
 
             switch (data->type) {
                 case DataTypes::MS5611_dt:
-                pc.printf("Temp: %.2f degC Barometer: %.1f mB\n",
-                    ((MS5611Data*)data)->temperature, ((MS5611Data*)data)->pressure
+                printf("Temp: %.2f degC Barometer: %.2f mB\n",
+                    ((MS5611Data*)data)->temperature,
+                    ((MS5611Data*)data)->pressure
                 );
+
+                sprintf(blemsg, "Temp: %.2f degC Barometer: %.2f mB\n",
+                    ((MS5611Data*)data)->temperature,
+                    ((MS5611Data*)data)->pressure
+                );
+
+                demo.uart()->writeString(blemsg);
+                break;
+
+                case DataTypes::SHT31_dt:
+                printf("Temp: %.2f degC Hum: %.2f%%\n",
+                    ((SHT31Data*)data)->temperature,
+                    ((SHT31Data*)data)->humidity
+                );
+
+                sprintf(blemsg, "Temp: %.2f degC Hum: %.2f%%\n",
+                    ((SHT31Data*)data)->temperature,
+                    ((SHT31Data*)data)->humidity
+                );
+
+                demo.uart()->writeString(blemsg);
                 break;
 
                 default:
-                pc.printf("Unknown type\n");
+                printf("Unknown type\n");
                 break;
             }
 
-            pc.printf("\n\n");
-
-            Sensor::free(data);
+            sensorMempool.free((SensorDataUnion*)data);
         }
     }
 

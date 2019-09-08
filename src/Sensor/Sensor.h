@@ -4,9 +4,9 @@
 #include "mbed.h"
 #include "rtos.h"
 #include "DataTypes.h"
-
-#define DATA_QUEUE_SIZE 5
-
+#include "QueueInterface.h"
+#include "MempoolInterface.h"
+#include "SensorDataStore.h"
 
 class Sensor : NonCopyable<Sensor>
 {
@@ -14,22 +14,21 @@ public:
     Sensor();
     ~Sensor();
 
-    void setQueue(Queue<SensorData, DATA_QUEUE_SIZE> *queue);
+    void setDataStore(SensorDataStore *store);
+    void setQueue(QueueInterface<SensorData> *queue, MempoolInterface<SensorDataUnion> *memPool);
     void start(int delay_ms);
     void stop();
 
-    static osStatus free(SensorData*);
-
 protected:
-    virtual int setup() = 0;
-    virtual SensorData* read() = 0;
-
-    static MemoryPool<SensorDataUnion, DATA_QUEUE_SIZE> _memPool;
+    virtual mbed_error_status_t setup() = 0;
+    virtual mbed_error_status_t read(SensorData*) = 0;
 
 private:
     int _delay_ms;
 
-    Queue<SensorData, DATA_QUEUE_SIZE> *_dataQueue;
+    SensorDataStore *_store;
+    QueueInterface<SensorData> *_dataQueue;
+    MempoolInterface<SensorDataUnion> *_memPool;
 
     Thread _sensor_thread;
     void _sensor_task();
