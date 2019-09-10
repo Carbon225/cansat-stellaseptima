@@ -6,6 +6,21 @@
         "sensor-mempool-size": {
             "value": 32
         },
+        
+        "button1": {
+            "value": "NC"
+        },
+
+        "led1": {
+            "value": "NC"
+        },
+        "led2": {
+            "value": "NC"
+        },
+        "led3": {
+            "value": "NC"
+        },
+
         "i2c1-sda": {
             "value": "P0_22"
         },
@@ -17,16 +32,40 @@
         "*": {
             "platform.all-stats-enabled": 1,
             "platform.default-serial-baud-rate": 115200,
-            "platform.stdio-baud-rate": 115200
-        },
-        "NRF52_DK": {
+            "platform.stdio-baud-rate": 115200,
+
             "target.features_add": ["STORAGE"],
             "target.components_add": ["SD"],
+            "sd.CMD_TIMEOUT": 1000
+        },
+        
+        "NRF52_DK": {
+            "i2c1-sda": "P0_22",
+            "i2c1-scl": "P0_23",
+
+            "button1": "P0_13",
+            "led1": "P0_17",
+            "led2": "P0_18",
+            "led3": "P0_19",
+
             "sd.SPI_MOSI": "P0_2",
             "sd.SPI_MISO": "P0_26",
             "sd.SPI_CLK": "P0_27",
-            "sd.SPI_CS": "P0_11",
-            "sd.CMD_TIMEOUT": 1000
+            "sd.SPI_CS": "P0_11"
+        },
+        "NRF52840_DK": {
+            "i2c1-sda": "P0_19",
+            "i2c1-scl": "P0_20",
+
+            "button1": "P0_13",
+            "led1": "P0_7",
+            "led2": "NC",
+            "led3": "NC",
+            
+            "sd.SPI_MOSI": "P0_15",
+            "sd.SPI_MISO": "P0_29",
+            "sd.SPI_CLK": "P0_5",
+            "sd.SPI_CS": "P0_17"
         }
     }
 }
