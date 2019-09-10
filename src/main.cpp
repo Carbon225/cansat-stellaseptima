@@ -12,10 +12,10 @@
 
 #include "CansatBLE.h"
 
-Serial pc(USBTX, USBRX);
+// Serial pc(USBTX, USBRX);
 
-DigitalOut led(LED1, 0);
-InterruptIn button(BUTTON1, PullUp);
+DigitalOut led(MBED_CONF_APP_LED1, 0);
+InterruptIn button(MBED_CONF_APP_BUTTON1, PullUp);
 
 SizedQueue<SensorData, MBED_CONF_APP_FEC_GROUP_SIZE> fecQueue;
 SizedMempool<SensorDataUnion, MBED_CONF_APP_SENSOR_MEMPOOL_SIZE> sensorMempool;

@@ -8,8 +8,8 @@ class CansatBLE : ble::Gap::EventHandler {
 public:
     CansatBLE(BLE &ble, events::EventQueue &ev_queue)
     :   _ble(ble),
-        _alive_led(LED2),
-        _actuated_led(LED3),
+        _alive_led(MBED_CONF_APP_LED2),
+        _actuated_led(MBED_CONF_APP_LED3),
         _ev_queue(ev_queue),
         _adv_data_builder(_adv_buffer),
         _led_service(NULL),
@@ -97,12 +97,14 @@ private:
  
     void on_data_written(const GattWriteCallbackParams *params) {
         if ((params->handle == _led_service->getValueHandle()) && (params->len == 1)) {
-            _actuated_led = *(params->data);
+            if (_actuated_led.is_connected())
+                _actuated_led = *(params->data);
         }
     }
  
     void blink() {
-        _alive_led = !_alive_led;
+        if (_alive_led.is_connected())
+            _alive_led = !_alive_led;
     }
  
     void onDisconnectionComplete(const ble::DisconnectionCompleteEvent&) {
