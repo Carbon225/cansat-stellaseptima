@@ -1,4 +1,5 @@
 #include "Sensor.h"
+#include "BLELogger.h"
 
 Sensor::Sensor()
 : _dataQueue(nullptr), _memPool(nullptr), _store(nullptr), _delay_ms(10)
@@ -37,7 +38,7 @@ void Sensor::_sensor_task()
 {
     int ret = setup();
     if (ret != MBED_SUCCESS) {
-        printf("Sensor returned error code %d\n", ret);
+        LOGI("Sensor returned error code %d\n", ret);
 
         return;
     }
@@ -45,7 +46,7 @@ void Sensor::_sensor_task()
     while (true) {
         SensorData *data = (SensorData*)_memPool->alloc();
         if (!data) {
-            printf("Mempool alloc error\n");
+            LOGI("Mempool alloc error\n");
         }
         else {
             if (read(data) == MBED_SUCCESS && _dataQueue) {

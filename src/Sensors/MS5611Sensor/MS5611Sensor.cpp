@@ -1,4 +1,5 @@
 #include "MS5611Sensor.h"
+#include "BLELogger.h"
 
 MS5611Sensor::MS5611Sensor(PinName sda, PinName scl)
 : Sensor(), ms5611(sda, scl)
@@ -14,7 +15,7 @@ MS5611Sensor::~MS5611Sensor()
 mbed_error_status_t MS5611Sensor::setup()
 {
     ms5611::cmd_reset();
-    printf("MS5611 started\n");
+    LOGI("MS5611 started\n");
     return MBED_SUCCESS;
 }
 

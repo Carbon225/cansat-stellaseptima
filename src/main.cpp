@@ -11,8 +11,9 @@
 #include "FSDataStore.h"
 
 #include "CansatBLE.h"
+#include "BLELogger.h"
 
-// Serial pc(USBTX, USBRX);
+Thread event_thread;
 
 DigitalOut led(MBED_CONF_APP_LED1, 0);
 InterruptIn button(MBED_CONF_APP_BUTTON1, PullUp);
@@ -85,29 +86,13 @@ void sdTest()
     bd->deinit();
 }
 
-EventQueue event_queue(/* event count */ 10 * EVENTS_EVENT_SIZE);
-
-Thread event_thread;
-
-void schedule_ble_events(BLE::OnEventsToProcessCallbackContext *context) {
-    event_queue.call(Callback<void()>(&context->ble, &BLE::processEvents));
-}
-
 int main(void)
 {
-    printf("Starting...\n");
-
-    event_thread.start(callback(&event_queue, &EventQueue::dispatch_forever));
-
+    LOGI("Starting... %d %d %d\n", 1, 2, 3);
+    
     button.fall(buttonPress);
-
-    BLE &ble = BLE::Instance();
-    ble.onEventsToProcess(schedule_ble_events);
  
-    static CansatBLE demo(ble, event_queue);
-    demo.start();
-
-    // sdTest();
+    CansatBLE::init();
 
     MS5611.setQueue(&fecQueue, &sensorMempool);
     MS5611.start(1000);
@@ -119,39 +104,24 @@ int main(void)
         osEvent evt = fecQueue.get();
         if (evt.status == osEventMessage) {
             SensorData *data = (SensorData*) evt.value.p;
-            static char blemsg[64] = {'\0'};
 
             switch (data->type) {
                 case DataTypes::MS5611_dt:
-                printf("Temp: %.2f degC Barometer: %.2f mB\n",
+                LOGI("T: %.2f P: %.2f\n",
                     ((MS5611Data*)data)->temperature,
                     ((MS5611Data*)data)->pressure
                 );
-
-                sprintf(blemsg, "Temp: %.2f degC Barometer: %.2f mB\n",
-                    ((MS5611Data*)data)->temperature,
-                    ((MS5611Data*)data)->pressure
-                );
-
-                demo.uart()->writeString(blemsg);
                 break;
 
                 case DataTypes::SHT31_dt:
-                printf("Temp: %.2f degC Hum: %.2f%%\n",
+                LOGI("T: %.2f H: %.2f\n",
                     ((SHT31Data*)data)->temperature,
                     ((SHT31Data*)data)->humidity
                 );
-
-                sprintf(blemsg, "Temp: %.2f degC Hum: %.2f%%\n",
-                    ((SHT31Data*)data)->temperature,
-                    ((SHT31Data*)data)->humidity
-                );
-
-                demo.uart()->writeString(blemsg);
                 break;
 
                 default:
-                printf("Unknown type\n");
+                LOGI("Unknown type\n");
                 break;
             }
 

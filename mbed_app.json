@@ -1,5 +1,9 @@
 {
     "config": {
+        "ble-name": {
+            "value": "\"7Cansat\""
+        },
+
         "fec-group-size": {
             "value": 5
         },
@@ -40,6 +44,8 @@
         },
         
         "NRF52_DK": {
+            "ble-name": "\"CansatDK\"",
+
             "i2c1-sda": "P0_22",
             "i2c1-scl": "P0_23",
 
@@ -54,6 +60,8 @@
             "sd.SPI_CS": "P0_11"
         },
         "NRF52840_DK": {
+            "ble-name": "\"7Cansat\"",
+
             "i2c1-sda": "P0_19",
             "i2c1-scl": "P0_20",
 
