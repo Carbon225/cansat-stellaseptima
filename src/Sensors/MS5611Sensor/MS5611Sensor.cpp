@@ -2,7 +2,7 @@
 #include "BLELogger.h"
 
 MS5611Sensor::MS5611Sensor(PinName sda, PinName scl)
-: Sensor(), ms5611(sda, scl)
+: Sensor(sizeof(MS5611Data), "ms5611"), ms5611(sda, scl)
 {
 
 }

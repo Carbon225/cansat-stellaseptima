@@ -10,6 +10,10 @@
         "sensor-mempool-size": {
             "value": 32
         },
+
+        "radio-queue-size": {
+            "value": 16
+        },
         
         "button1": {
             "value": "NC"
@@ -37,6 +41,7 @@
             "platform.all-stats-enabled": 1,
             "platform.default-serial-baud-rate": 115200,
             "platform.stdio-baud-rate": 115200,
+            "platform.error-filename-capture-enabled": 1,
 
             "target.features_add": ["STORAGE"],
             "target.components_add": ["SD"],

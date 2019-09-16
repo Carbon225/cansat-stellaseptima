@@ -12,7 +12,10 @@ class SensorData
 {
 public:
     SensorData(DataTypes t);
+    virtual ~SensorData() {};
     const DataTypes type;
+
+    virtual bool valid() = 0;
 };
 
 class MS5611Data : public SensorData
@@ -22,6 +25,8 @@ public:
 
     double pressure;
     double temperature;
+
+    virtual bool valid() override;
 };
 
 class SHT31Data : public SensorData
@@ -31,13 +36,17 @@ public:
 
     double temperature;
     double humidity;
+
+    virtual bool valid() override;
 };
 
+/*
 union SensorDataUnion
 {
     SensorData a;
     MS5611Data b;
     SHT31Data c;
 };
+*/
 
 #endif // _DATATYPES_H_

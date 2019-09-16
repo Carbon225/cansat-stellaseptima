@@ -1,26 +1,28 @@
 #include "Sensor.h"
 #include "BLELogger.h"
 
-Sensor::Sensor()
-: _dataQueue(nullptr), _memPool(nullptr), _store(nullptr), _delay_ms(10)
+Sensor::Sensor(size_t data_size, const char *name)
+: _store(nullptr), 
+  _delay_ms(10),
+  _last_value((SensorData*) new uint8_t[data_size]),
+  _sensor_thread(osPriorityNormal, 512, NULL, name)
 {
-
+    
 }
 
 Sensor::~Sensor()
 {
+    delete _last_value;
+}
 
+SensorData* Sensor::lastValue()
+{
+    return _last_value;
 }
 
 void Sensor::setDataStore(SensorDataStore *store)
 {
     _store = store;
-}
-
-void Sensor::setQueue(QueueInterface<SensorData> *queue, MempoolInterface<SensorDataUnion> *memPool)
-{
-    _dataQueue = queue;
-    _memPool = memPool;
 }
 
 void Sensor::start(int delay_ms)
@@ -44,22 +46,12 @@ void Sensor::_sensor_task()
     }
 
     while (true) {
-        SensorData *data = (SensorData*)_memPool->alloc();
-        if (!data) {
-            LOGI("Mempool alloc error\n");
-        }
-        else {
-            if (read(data) == MBED_SUCCESS && _dataQueue) {
-                _dataQueue->put(data);
-                if (_store) {
-                    _store->saveData(data);
-                }
-            }
-            else {
-                _memPool->free((SensorDataUnion*)data);
+        if (read(_last_value) == MBED_SUCCESS) {
+            if (_store) {
+                _store->saveData(_last_value);
             }
         }
-
+        
         wait_ms(_delay_ms);
     }
 }

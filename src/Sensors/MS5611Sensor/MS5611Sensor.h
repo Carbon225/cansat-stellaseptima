@@ -18,7 +18,7 @@ protected:
     virtual mbed_error_status_t read(SensorData*) override;
 
 private:
-    
+
 };
 
 #endif // _MS5611SENSOR_H_

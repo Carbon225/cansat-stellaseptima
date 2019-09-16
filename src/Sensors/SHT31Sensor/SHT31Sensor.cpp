@@ -2,7 +2,7 @@
 #include "BLELogger.h"
 
 SHT31Sensor::SHT31Sensor(PinName sda, PinName scl)
-: Sensor(), Sht31(sda, scl)
+: Sensor(sizeof(SHT31Data), "sht31"), Sht31(sda, scl)
 {
 
 }

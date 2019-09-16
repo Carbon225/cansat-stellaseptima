@@ -4,18 +4,17 @@
 #include "mbed.h"
 #include "rtos.h"
 #include "DataTypes.h"
-#include "QueueInterface.h"
-#include "MempoolInterface.h"
 #include "SensorDataStore.h"
 
 class Sensor : NonCopyable<Sensor>
 {
 public:
-    Sensor();
-    ~Sensor();
+    Sensor(size_t data_size, const char *name);
+    virtual ~Sensor();
+
+    SensorData* lastValue();
 
     void setDataStore(SensorDataStore *store);
-    void setQueue(QueueInterface<SensorData> *queue, MempoolInterface<SensorDataUnion> *memPool);
     void start(int delay_ms);
     void stop();
 
@@ -26,10 +25,10 @@ protected:
 private:
     int _delay_ms;
 
-    SensorDataStore *_store;
-    QueueInterface<SensorData> *_dataQueue;
-    MempoolInterface<SensorDataUnion> *_memPool;
+    SensorData *_last_value;
 
+    SensorDataStore *_store;
+    
     Thread _sensor_thread;
     void _sensor_task();
 };
