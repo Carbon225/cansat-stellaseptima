@@ -97,7 +97,7 @@ void sdTest()
 void packetGenerator()
 {
     while (true) {
-        MS5611Data *msData = (MS5611Data*) MS5611.lastValue();
+        PressureData *msData = (PressureData*) MS5611.lastValue();
         SHT31Data *shtData = (SHT31Data*) DoubleSHT31.lastValue();
 
         if (shtData->valid())
@@ -106,7 +106,7 @@ void packetGenerator()
             LOGI("SHT data invalid\n");
 
         if (msData->valid())
-            LOGI("mT %.2f mP %.2f\n", msData->temperature, msData->pressure);
+            LOGI("mP %.2f\n", msData->pressure);
         else
             LOGI("MS data invalid\n");
 

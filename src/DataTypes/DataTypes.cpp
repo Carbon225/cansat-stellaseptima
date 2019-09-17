@@ -4,20 +4,19 @@ SensorData::SensorData(DataTypes t)
 : type(t)
 {}
 
-// MS5611
+// Pressure
 
-MS5611Data::MS5611Data()
-: MS5611Data(0.f, -100.f)
+PressureData::PressureData()
+: PressureData(0.f)
 {}
 
-MS5611Data::MS5611Data(double p, double t)
-: SensorData(DataTypes::MS5611_dt), pressure(p), temperature(t)
+PressureData::PressureData(double p)
+: SensorData(DataTypes::Pressure_dt), pressure(p)
 {}
 
-bool MS5611Data::valid()
+bool PressureData::valid()
 {
-    return temperature > -20.f && temperature < 70.f &&
-           pressure > 700.f && pressure < 1300.f;
+    return pressure > 700.f && pressure < 1300.f;
 }
 
 // SHT31

@@ -20,7 +20,7 @@ protected:
     virtual mbed_error_status_t read() override;
 
 private:
-    MS5611Data _last_value;
+    PressureData _last_value;
 };
 
 #endif // _MS5611SENSOR_H_

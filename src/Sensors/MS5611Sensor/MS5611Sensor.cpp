@@ -26,7 +26,7 @@ mbed_error_status_t MS5611Sensor::setup()
 
 mbed_error_status_t MS5611Sensor::read()
 {
-    _last_value.temperature = ms5611::calcTemp();
+    ms5611::calcTemp();
     _last_value.pressure = ms5611::calcPressure();
 
     return MBED_SUCCESS;
