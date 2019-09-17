@@ -1,17 +1,15 @@
-#ifndef _SHT31SENSOR_H_
-#define _SHT31SENSOR_H_
+#ifndef _DOUBLETEMP_H_
+#define _DOUBLETEMP_H_
 
 #include "mbed.h"
-#include "Sht31.h"
-#include "DataTypes.h"
 #include "Sensor.h"
+#include "Sht31.h"
 
-
-class SHT31Sensor : public Sensor, private Sht31
+class DoubleTemp : public Sensor
 {
 public:
-    SHT31Sensor(PinName sda, PinName scl);
-    virtual ~SHT31Sensor();
+    DoubleTemp(PinName sda1, PinName scl1, PinName sda2, PinName scl2);
+    virtual ~DoubleTemp();
 
     virtual SensorData* lastValue() override;
 
@@ -20,7 +18,8 @@ protected:
     virtual mbed_error_status_t read() override;
 
 private:
+    Sht31 _sht1, _sht2;
     SHT31Data _last_value;
 };
 
-#endif // _SHT31SENSOR_H_
+#endif

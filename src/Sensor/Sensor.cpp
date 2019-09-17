@@ -1,23 +1,16 @@
 #include "Sensor.h"
 #include "BLELogger.h"
 
-Sensor::Sensor(size_t data_size, const char *name)
+Sensor::Sensor(const char *name)
 : _store(nullptr), 
   _delay_ms(10),
-  _last_value((SensorData*) new uint8_t[data_size]),
   _sensor_thread(osPriorityNormal, 512, NULL, name)
 {
-    
 }
 
 Sensor::~Sensor()
 {
-    delete _last_value;
-}
-
-SensorData* Sensor::lastValue()
-{
-    return _last_value;
+    stop();
 }
 
 void Sensor::setDataStore(SensorDataStore *store)
@@ -46,9 +39,9 @@ void Sensor::_sensor_task()
     }
 
     while (true) {
-        if (read(_last_value) == MBED_SUCCESS) {
+        if (read() == MBED_SUCCESS) {
             if (_store) {
-                _store->saveData(_last_value);
+                _store->saveData(lastValue());
             }
         }
         

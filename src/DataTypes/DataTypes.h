@@ -21,6 +21,7 @@ public:
 class MS5611Data : public SensorData
 {
 public:
+    MS5611Data();
     MS5611Data(double pressure, double temp);
 
     double pressure;
@@ -29,9 +30,12 @@ public:
     virtual bool valid() override;
 };
 
+typedef MS5611Data BaroTempData;
+
 class SHT31Data : public SensorData
 {
 public:
+    SHT31Data();
     SHT31Data(double temp, double hum);
 
     double temperature;

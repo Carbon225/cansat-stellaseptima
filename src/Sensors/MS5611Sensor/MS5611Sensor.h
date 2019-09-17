@@ -11,14 +11,16 @@ class MS5611Sensor : public Sensor, private ms5611
 {
 public:
     MS5611Sensor(PinName sda, PinName scl);
-    ~MS5611Sensor();
+    virtual ~MS5611Sensor();
+
+    virtual SensorData* lastValue() override;
 
 protected:
     virtual mbed_error_status_t setup() override;
-    virtual mbed_error_status_t read(SensorData*) override;
+    virtual mbed_error_status_t read() override;
 
 private:
-
+    MS5611Data _last_value;
 };
 
 #endif // _MS5611SENSOR_H_
