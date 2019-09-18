@@ -2,7 +2,7 @@
 #include "rtos.h"
 
 #include "MS5611Sensor.h"
-#include "SHT31Sensor.h"
+#include "DoubleTemp.h"
 
 #include "SizedQueue.h"
 #include "SizedMempool.h"
@@ -27,7 +27,10 @@ SizedMempool<packet_t, MBED_CONF_APP_RADIO_QUEUE_SIZE> radioMempool;
 // SizedMempool<SensorDataUnion, MBED_CONF_APP_SENSOR_MEMPOOL_SIZE> sensorMempool;
 
 MS5611Sensor MS5611(MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL);
-SHT31Sensor SHT31(MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL);
+DoubleTemp DoubleSHT31(
+    MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL,
+    MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL
+);
 
 
 void buttonPress()
@@ -65,7 +68,7 @@ void sdTest()
     }
 
     static FSDataStore store(fs);
-    SHT31.setDataStore(&store);
+    DoubleSHT31.setDataStore(&store);
     MS5611.setDataStore(&store);
 
     // Display the root directory
@@ -94,24 +97,18 @@ void sdTest()
 void packetGenerator()
 {
     while (true) {
-        MS5611Data *msData = (MS5611Data*) MS5611.lastValue();
-        SHT31Data *shtData = (SHT31Data*) SHT31.lastValue();
+        PressureData *msData = (PressureData*) MS5611.lastValue();
+        SHT31Data *shtData = (SHT31Data*) DoubleSHT31.lastValue();
 
-        msData->pressure = 0;
-
-        bool x = msData->valid();
-        bool y = shtData->valid();
-        LOGI("---- %d %d ----\n", x, y);
-
-        // if (msData->valid())
+        if (shtData->valid())
             LOGI("sT %.2f sH %.1f\n", shtData->temperature, shtData->humidity);
-        // else
-            // LOGI("MS data invalid\n");
+        else
+            LOGI("SHT data invalid\n");
 
-        // if (shtData->valid())
-            LOGI("mT %.2f mP %.2f\n", msData->temperature, msData->pressure);
-        // else
-            // LOGI("SHT data invalid\n");
+        if (msData->valid())
+            LOGI("mP %.2f\n", msData->pressure);
+        else
+            LOGI("MS data invalid\n");
 
         ThisThread::sleep_for(1000);
     }
@@ -129,11 +126,9 @@ int main(void)
 
     CansatBLE::init();
 
-    // MS5611.setQueue(&fecQueue, &sensorMempool);
     MS5611.start(1000);
 
-    // SHT31.setQueue(&fecQueue, &sensorMempool);
-    SHT31.start(1000);
+    DoubleSHT31.start(1000);
 
     ThisThread::sleep_for(2000);
 

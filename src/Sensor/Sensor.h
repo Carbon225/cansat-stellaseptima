@@ -9,10 +9,10 @@
 class Sensor : NonCopyable<Sensor>
 {
 public:
-    Sensor(size_t data_size, const char *name);
+    Sensor(const char *name);
     virtual ~Sensor();
 
-    SensorData* lastValue();
+    virtual SensorData* lastValue() = 0;
 
     void setDataStore(SensorDataStore *store);
     void start(int delay_ms);
@@ -20,12 +20,10 @@ public:
 
 protected:
     virtual mbed_error_status_t setup() = 0;
-    virtual mbed_error_status_t read(SensorData*) = 0;
+    virtual mbed_error_status_t read() = 0;
 
 private:
     int _delay_ms;
-
-    SensorData *_last_value;
 
     SensorDataStore *_store;
     

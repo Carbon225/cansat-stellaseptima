@@ -4,6 +4,7 @@
 #include "mbed.h"
 
 enum DataTypes {
+    Pressure_dt,
     MS5611_dt,
     SHT31_dt
 };
@@ -18,20 +19,25 @@ public:
     virtual bool valid() = 0;
 };
 
-class MS5611Data : public SensorData
+// Pressure
+
+class PressureData : public SensorData
 {
 public:
-    MS5611Data(double pressure, double temp);
+    PressureData();
+    PressureData(double pressure);
 
     double pressure;
-    double temperature;
 
     virtual bool valid() override;
 };
 
+// SHT31
+
 class SHT31Data : public SensorData
 {
 public:
+    SHT31Data();
     SHT31Data(double temp, double hum);
 
     double temperature;
