@@ -4,7 +4,7 @@
 Sensor::Sensor(const char *name)
 : _store(nullptr), 
   _delay_ms(10),
-  _sensor_thread(osPriorityNormal, 512, NULL, name)
+  _sensor_thread(osPriorityNormal, 1024, NULL, name)
 {
 }
 
