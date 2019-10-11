@@ -26,11 +26,10 @@ mbed_error_status_t BMP280Sensor::setup()
 
 mbed_error_status_t BMP280Sensor::read()
 {
-    static float temp = BMP280::getTemperature();
-    static float press = BMP280::getPressure();
+    float temp = BMP280::getTemperature();
+    float press = BMP280::getPressure();
 
     LOGI("temp = %.2f press = %.2f\n", temp, press);
-    LOGI("%#x %#x\n", temp, press);
 
     _last_value.pressure = press;
     // return MBED_ERROR_CODE_NOT_READY;

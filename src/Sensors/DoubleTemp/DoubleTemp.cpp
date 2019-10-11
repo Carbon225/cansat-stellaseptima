@@ -26,14 +26,14 @@ mbed_error_status_t DoubleTemp::setup()
 
 mbed_error_status_t DoubleTemp::read()
 {
-    static double temp1 = _sht1.readTemperature();
-    static double hum1 = _sht1.readHumidity();
+    double temp1 = _sht1.readTemperature();
+    double hum1 = _sht1.readHumidity();
 
-    static double temp2 = _sht2.readTemperature();
-    static double hum2 = _sht2.readHumidity();
+    double temp2 = _sht2.readTemperature();
+    double hum2 = _sht2.readHumidity();
 
-    static bool data1Valid = SHT31Data(temp1, hum1).valid();
-    static bool data2Valid = SHT31Data(temp2, hum2).valid();
+    bool data1Valid = SHT31Data(temp1, hum1).valid();
+    bool data2Valid = SHT31Data(temp2, hum2).valid();
 
     if (data1Valid && data2Valid) {
         _last_value.temperature = (temp1 + temp2) / 2.f;
