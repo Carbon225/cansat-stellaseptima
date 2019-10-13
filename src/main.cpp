@@ -1,6 +1,8 @@
 #include "mbed.h"
 #include "rtos.h"
 
+#include "SHT31Sensor.h"
+#include "BMP280Sensor.h"
 #include "MS5611Sensor.h"
 #include "DoubleTemp.h"
 
@@ -20,17 +22,23 @@ Thread packetgen_thread(osPriorityNormal, 1024, NULL, "packetgen");
 DigitalOut led(MBED_CONF_APP_LED1, 0);
 InterruptIn button(MBED_CONF_APP_BUTTON1, PullUp);
 
-SizedQueue<packet_t, MBED_CONF_APP_RADIO_QUEUE_SIZE> radioQueue;
-SizedMempool<packet_t, MBED_CONF_APP_RADIO_QUEUE_SIZE> radioMempool;
+SizedQueue<RadioPacket, MBED_CONF_APP_RADIO_QUEUE_SIZE> radioQueue;
+SizedMempool<RadioPacket, MBED_CONF_APP_RADIO_QUEUE_SIZE> radioMempool;
 
 // SizedQueue<SensorData, MBED_CONF_APP_FEC_GROUP_SIZE> fecQueue;
 // SizedMempool<SensorDataUnion, MBED_CONF_APP_SENSOR_MEMPOOL_SIZE> sensorMempool;
 
-MS5611Sensor MS5611(MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL);
-DoubleTemp DoubleSHT31(
-    MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL,
-    MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL
-);
+BMP280Sensor BMP280_1(MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL);
+BMP280Sensor BMP280_2(MBED_CONF_APP_I2C2_SDA, MBED_CONF_APP_I2C2_SCL);
+
+MS5611Sensor MS5611(MBED_CONF_APP_I2C2_SDA, MBED_CONF_APP_I2C2_SCL);
+
+SHT31Sensor SHT31_1(MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL);
+
+// DoubleTemp DoubleSHT31(
+//     MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL,
+//     MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL
+// );
 
 
 void buttonPress()
@@ -68,7 +76,7 @@ void sdTest()
     }
 
     static FSDataStore store(fs);
-    DoubleSHT31.setDataStore(&store);
+    // DoubleSHT31.setDataStore(&store);
     MS5611.setDataStore(&store);
 
     // Display the root directory
@@ -98,17 +106,56 @@ void packetGenerator()
 {
     while (true) {
         PressureData *msData = (PressureData*) MS5611.lastValue();
-        SHT31Data *shtData = (SHT31Data*) DoubleSHT31.lastValue();
+        
+        SHT31Data *shtData1 = (SHT31Data*) SHT31_1.lastValue();
+        // SHT31Data *shtData2 = (SHT31Data*) SHT31_2.lastValue();
+        
+        PressureData *bmpData1 = (PressureData*) BMP280_1.lastValue();
+        PressureData *bmpData2 = (PressureData*) BMP280_2.lastValue();
 
-        if (shtData->valid())
-            LOGI("sT %.2f sH %.1f\n", shtData->temperature, shtData->humidity);
+        if (shtData1->valid())
+            LOGI("s1T %.2f s1H %.1f\n", shtData1->temperature, shtData1->humidity);
         else
-            LOGI("SHT data invalid\n");
+            LOGI("SHT1 data invalid\n");
+
+/*
+        if (shtData2->valid())
+            LOGI("s2T %.2f s2H %.1f\n", shtData2->temperature, shtData2->humidity);
+        else
+            LOGI("SHT2 data invalid\n");
+*/
+
 
         if (msData->valid())
             LOGI("mP %.2f\n", msData->pressure);
         else
             LOGI("MS data invalid\n");
+
+        if (bmpData1->valid())
+            LOGI("b1P %.2f\n", bmpData1->pressure);
+        else
+           LOGI("BMP1 data invalid\n");
+
+        if (bmpData2->valid())
+            LOGI("b2P %.2f\n", bmpData2->pressure);
+        else
+           LOGI("BMP2 data invalid\n");
+
+        LOGI("\n");
+/*
+        LOGI("Generating packet...\n");
+
+        RadioPacket *packet = radioMempool.alloc();
+        
+        if (packet != nullptr) {
+            new(packet) RadioPacket(7, shtData->temperature, bmpData->pressure);
+            radioQueue.put(packet);
+            LOGI("%#x\n", *packet);
+        }
+        else {
+            LOGI("Radio queue full\n");
+        }
+*/
 
         ThisThread::sleep_for(1000);
     }
@@ -117,20 +164,18 @@ void packetGenerator()
 int main(void)
 {
     LOGI("Starting... %d %d %d\n", 1, 2, 3);
-
-    // MS5611Data test(8000, 0);
-    // SensorData *ptr = (SensorData*)(void*) &packetgen_thread;
-    // LOGI("%d\n", ptr->valid());
-    
+   
     button.fall(buttonPress);
 
     CansatBLE::init();
 
-    MS5611.start(1000);
+    BMP280_1.start(500);
+    BMP280_2.start(500);
 
-    DoubleSHT31.start(1000);
+    MS5611.start(500);
+    // DoubleSHT31.start(1000);
 
-    ThisThread::sleep_for(2000);
+    SHT31_1.start(500);
 
     packetgen_thread.start(packetGenerator);
 

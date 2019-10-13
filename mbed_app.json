@@ -34,6 +34,12 @@
         },
         "i2c1-scl": {
             "value": "P0_23"
+        },
+        "i2c2-sda": {
+            "value": "P0_25"
+        },
+        "i2c2-scl": {
+            "value": "P0_24"
         }
     },
     "target_overrides": {

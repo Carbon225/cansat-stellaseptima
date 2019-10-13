@@ -29,10 +29,7 @@ mbed_error_status_t BMP280Sensor::read()
     float temp = BMP280::getTemperature();
     float press = BMP280::getPressure();
 
-    LOGI("temp = %.2f press = %.2f\n", temp, press);
-
     _last_value.pressure = press;
-    // return MBED_ERROR_CODE_NOT_READY;
 
     return MBED_SUCCESS;
 }
