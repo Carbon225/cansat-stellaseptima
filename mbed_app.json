@@ -4,13 +4,6 @@
             "value": "\"7Cansat\""
         },
 
-        "fec-group-size": {
-            "value": 5
-        },
-        "sensor-mempool-size": {
-            "value": 32
-        },
-
         "radio-queue-size": {
             "value": 16
         },
@@ -30,16 +23,16 @@
         },
 
         "i2c1-sda": {
-            "value": "P0_22"
+            "value": "NC"
         },
         "i2c1-scl": {
-            "value": "P0_23"
+            "value": "NC"
         },
         "i2c2-sda": {
-            "value": "P0_25"
+            "value": "NC"
         },
         "i2c2-scl": {
-            "value": "P0_24"
+            "value": "NC"
         }
     },
     "target_overrides": {
@@ -50,15 +43,20 @@
             "platform.error-filename-capture-enabled": 1,
 
             "target.features_add": ["STORAGE"],
-            "target.components_add": ["SD"],
+            "target.components_add": ["FLASHIAP", "SD"],
             "sd.CMD_TIMEOUT": 1000
         },
         
         "NRF52_DK": {
             "ble-name": "\"CansatDK\"",
 
+            "flashiap-block-device.base-address": "0x61000",
+            "flashiap-block-device.size": "0x1F000‬",
+
             "i2c1-sda": "P0_22",
             "i2c1-scl": "P0_23",
+            "i2c2-sda": "P0_25",
+            "i2c2-scl": "P0_24",
 
             "button1": "P0_13",
             "led1": "P0_17",
