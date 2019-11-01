@@ -14,7 +14,7 @@ Packet structure
 
    time            data              crc
    ****    ********************    ********
-   0  3    4                 27    28    31 
+   0  3    4                 23    24    31 
 
 */
 
@@ -24,13 +24,12 @@ typedef uint32_t packet_t;
 class RadioPacket
 {
 public:
-    RadioPacket(int id, double temp, double press);
-    // TODO RadioPacket(int id, double lat, double lng);
-
     packet_t toBinary();
 
-private:
+protected:
     packet_t _data;
 };
+
+double map(double unscaledNum, double minAllowed, double maxAllowed,double min, double max);
 
 #endif
