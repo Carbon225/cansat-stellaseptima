@@ -2,17 +2,14 @@
 
 void LOGI(const char *fmt, ...)
 {
-    
     va_list args;
     va_start(args, fmt);
 
-    if (vprintf(fmt, args) < 64) {
-        static char buf[64];
-        memset(buf, 0, 64);
-        vsprintf(buf, fmt, args);
-        
-        if (BLEController.uart())
-            BLEController.uart()->write(buf, 20);
+    if (vprintf(fmt, args) <= 20 && BLEController.uart()) {
+        static char buf[21];
+        memset(buf, 0, 21);
+        int len = vsprintf(buf, fmt, args);
+        BLEController.uart()->write(buf, len);
     }
 
     va_end(args);
