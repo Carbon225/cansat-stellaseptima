@@ -6,15 +6,19 @@
 
 class FSDataStore : public SensorDataStore {
 public:
-    FSDataStore(FileSystem *fs);
+    FSDataStore(const char *path);
+    virtual ~FSDataStore();
 
-    virtual mbed_error_status_t init();
-    virtual mbed_error_status_t deinit();
-    virtual mbed_error_status_t saveData(SensorData* data);
-    virtual mbed_error_status_t reset();
+    virtual mbed_error_status_t init() override;
+    virtual mbed_error_status_t deinit() override;
+    virtual mbed_error_status_t saveData(SensorData* data) override;
+    virtual mbed_error_status_t reset() override;
+
+protected:
+    virtual int _encode(SensorData *data, uint8_t *out = nullptr) override;
 
 private:
-    FileSystem *_fs;
+    char *_data_path;
 };
 
 

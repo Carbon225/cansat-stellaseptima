@@ -1,17 +1,21 @@
 #include "DataTypes.h"
 
-SensorData::SensorData(DataTypes t)
+SensorData::SensorData(DataTypes t, const char name[64])
 : type(t)
-{}
+{
+    if (name) {
+        strcpy(this->name, name);
+    }
+}
 
 // Pressure
 
-PressureData::PressureData()
-: PressureData(0.f)
+PressureData::PressureData(const char name[])
+: PressureData(0.f, name)
 {}
 
-PressureData::PressureData(double p)
-: SensorData(DataTypes::Pressure_dt), pressure(p)
+PressureData::PressureData(double p, const char name[])
+: SensorData(DataTypes::Pressure_dt, name), pressure(p)
 {}
 
 bool PressureData::valid()
@@ -21,12 +25,12 @@ bool PressureData::valid()
 
 // SHT31
 
-SHT31Data::SHT31Data()
-: SHT31Data(-100.f, 200.f)
+SHT31Data::SHT31Data(const char name[])
+: SHT31Data(-100.f, 200.f, name)
 {}
 
-SHT31Data::SHT31Data(double t, double h)
-: SensorData(DataTypes::SHT31_dt), temperature(t), humidity(h)
+SHT31Data::SHT31Data(double t, double h, const char name[])
+: SensorData(DataTypes::SHT31_dt, name), temperature(t), humidity(h)
 {}
 
 bool SHT31Data::valid()

@@ -15,6 +15,8 @@ public:
 
 protected:
     bool _active = false;
+
+    virtual int _encode(SensorData *data, uint8_t *out = nullptr) = 0;
 };
 
 

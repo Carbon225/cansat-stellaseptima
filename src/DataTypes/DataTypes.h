@@ -5,16 +5,17 @@
 
 enum DataTypes {
     Pressure_dt,
-    MS5611_dt,
     SHT31_dt
 };
 
 class SensorData
 {
 public:
-    SensorData(DataTypes t);
+    SensorData(DataTypes t, const char name[] = nullptr);
     virtual ~SensorData() {};
     const DataTypes type;
+
+    char name[64] = {'\0'};
 
     virtual bool valid() = 0;
 };
@@ -24,8 +25,8 @@ public:
 class PressureData : public SensorData
 {
 public:
-    PressureData();
-    PressureData(double pressure);
+    PressureData(const char name[] = nullptr);
+    PressureData(double pressure, const char name[] = nullptr);
 
     double pressure;
 
@@ -37,8 +38,8 @@ public:
 class SHT31Data : public SensorData
 {
 public:
-    SHT31Data();
-    SHT31Data(double temp, double hum);
+    SHT31Data(const char name[] = nullptr);
+    SHT31Data(double temp, double hum, const char name[] = nullptr);
 
     double temperature;
     double humidity;
