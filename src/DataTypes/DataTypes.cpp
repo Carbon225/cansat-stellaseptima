@@ -1,11 +1,21 @@
 #include "DataTypes.h"
 
-SensorData::SensorData(DataTypes t, const char name[64])
+SensorData::SensorData(DataTypes t, const char n[64])
 : type(t)
 {
     if (name) {
-        strcpy(this->name, name);
+        name = new char[strlen(n) + 1];
+        strcpy(name, n);
     }
+    else {
+        name = new char[1];
+        name[0] = '\0';
+    }
+}
+
+SensorData::~SensorData()
+{
+    delete name;
 }
 
 // Pressure

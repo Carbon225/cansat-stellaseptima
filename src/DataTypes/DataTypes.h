@@ -12,10 +12,10 @@ class SensorData
 {
 public:
     SensorData(DataTypes t, const char name[] = nullptr);
-    virtual ~SensorData() {};
+    virtual ~SensorData();
     const DataTypes type;
 
-    char name[64] = {'\0'};
+    char *name;
 
     virtual bool valid() = 0;
 };
