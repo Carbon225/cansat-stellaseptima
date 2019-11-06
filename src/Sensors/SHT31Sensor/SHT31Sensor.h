@@ -10,7 +10,7 @@
 class SHT31Sensor : public Sensor, private Sht31
 {
 public:
-    SHT31Sensor(PinName sda, PinName scl);
+    SHT31Sensor(const char name[], PinName sda, PinName scl);
     virtual ~SHT31Sensor();
 
     virtual SensorData* lastValue() override;

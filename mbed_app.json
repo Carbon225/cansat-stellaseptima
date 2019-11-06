@@ -43,8 +43,7 @@
             "platform.error-filename-capture-enabled": 1,
 
             "target.features_add": ["STORAGE"],
-            "target.components_add": ["FLASHIAP", "SD"],
-            "sd.CMD_TIMEOUT": 1000
+            "target.components_add": ["FLASHIAP", "SD"]
         },
         
         "NRF52_DK": {

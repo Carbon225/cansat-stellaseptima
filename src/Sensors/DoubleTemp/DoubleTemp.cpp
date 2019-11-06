@@ -1,8 +1,8 @@
 #include "DoubleTemp.h"
 #include "BLELogger.h"
 
-DoubleTemp::DoubleTemp(PinName sda1, PinName scl1, PinName sda2, PinName scl2)
-: Sensor("doubletemp"),
+DoubleTemp::DoubleTemp(const char name[], PinName sda1, PinName scl1, PinName sda2, PinName scl2)
+: Sensor(name), _last_value(name),
   _sht1(sda1, scl1), _sht2(sda2, scl2)
 {
 

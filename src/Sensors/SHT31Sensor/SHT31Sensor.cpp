@@ -1,8 +1,8 @@
 #include "SHT31Sensor.h"
 #include "BLELogger.h"
 
-SHT31Sensor::SHT31Sensor(PinName sda, PinName scl)
-: Sensor("sht31"), Sht31(sda, scl)
+SHT31Sensor::SHT31Sensor(const char name[], PinName sda, PinName scl)
+: Sensor(name), Sht31(sda, scl), _last_value(name)
 {
 
 }

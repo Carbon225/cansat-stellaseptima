@@ -10,7 +10,7 @@
 class TripleBaro : public Sensor
 {
 public:
-    TripleBaro(PinName sda1, PinName scl1, PinName sda2, PinName scl2);
+    TripleBaro(const char name[], PinName sda1, PinName scl1, PinName sda2, PinName scl2);
     virtual ~TripleBaro();
 
     virtual SensorData* lastValue() override;

@@ -9,6 +9,8 @@
 #include "SizedQueue.h"
 #include "SizedMempool.h"
 
+#include "SDDataStore.h"
+
 #include "SensorPacket.h"
 #include "GPSPacket.h"
 
@@ -23,18 +25,21 @@ InterruptIn button(MBED_CONF_APP_BUTTON1, PullUp);
 SizedQueue<RadioPacket, MBED_CONF_APP_RADIO_QUEUE_SIZE> radioQueue;
 SizedMempool<RadioPacket, MBED_CONF_APP_RADIO_QUEUE_SIZE> radioMempool;
 
-BMP280Sensor BMP280_1(MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL);
-// BMP280Sensor BMP280_2(MBED_CONF_APP_I2C2_SDA, MBED_CONF_APP_I2C2_SCL);
+BMP280Sensor BMP280_1("bmp1", MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL);
+// BMP280Sensor BMP280_2("bmp2", MBED_CONF_APP_I2C2_SDA, MBED_CONF_APP_I2C2_SCL);
 
-MS5611Sensor MS5611(MBED_CONF_APP_I2C2_SDA, MBED_CONF_APP_I2C2_SCL);
+MS5611Sensor MS5611("ms5611", MBED_CONF_APP_I2C2_SDA, MBED_CONF_APP_I2C2_SCL);
 
-SHT31Sensor SHT31_1(MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL);
-SHT31Sensor SHT31_2(MBED_CONF_APP_I2C2_SDA, MBED_CONF_APP_I2C2_SCL);
+SHT31Sensor SHT31_1("sht1", MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL);
+SHT31Sensor SHT31_2("sht2", MBED_CONF_APP_I2C2_SDA, MBED_CONF_APP_I2C2_SCL);
 
 // DoubleTemp DoubleSHT31(
+//     "doublesht",
 //     MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL,
 //     MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL
 // );
+
+SDDataStore SDStore("/sd");
 
 
 void buttonPress()
@@ -45,6 +50,8 @@ void buttonPress()
 void packetGenerator()
 {
     while (true) {
+        LOGI("\n");
+
         PressureData *msData = (PressureData*) MS5611.lastValue();
         
         SHT31Data *shtData1 = (SHT31Data*) SHT31_1.lastValue();
@@ -96,7 +103,7 @@ void packetGenerator()
             LOGI("Radio queue full\n");
         }
 
-        ThisThread::sleep_for(500);
+        ThisThread::sleep_for(1000);
     }
 }
 
@@ -106,7 +113,13 @@ int main(void)
    
     button.fall(buttonPress);
 
-    CansatBLE::init();    
+    CansatBLE::init();
+
+    if (SDStore.init() != 0) {
+        printf("Store init failed\n");
+        SDStore.deinit();
+        return 1;
+    }
 
     BMP280_1.start(100);
     // BMP280_2.start(500);
@@ -116,6 +129,11 @@ int main(void)
     // DoubleSHT31.start(1000);
     SHT31_1.start(100);
     SHT31_2.start(100);
+
+    SDStore.schedule(&MS5611, 500);
+    SDStore.schedule(&BMP280_1, 500);
+    SDStore.schedule(&SHT31_1, 500);
+    SDStore.schedule(&SHT31_2, 500);
 
     packetgen_thread.start(packetGenerator);
 

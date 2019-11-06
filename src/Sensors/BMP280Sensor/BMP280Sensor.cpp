@@ -1,8 +1,8 @@
 #include "BMP280Sensor.h"
 #include "BLELogger.h"
 
-BMP280Sensor::BMP280Sensor(PinName sda, PinName scl)
-: Sensor("bmp280"), BMP280(sda, scl)
+BMP280Sensor::BMP280Sensor(const char name[], PinName sda, PinName scl)
+: Sensor(name), BMP280(sda, scl), _last_value(name)
 {
 
 }

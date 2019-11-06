@@ -8,7 +8,7 @@
 class DoubleTemp : public Sensor
 {
 public:
-    DoubleTemp(PinName sda1, PinName scl1, PinName sda2, PinName scl2);
+    DoubleTemp(const char name[], PinName sda1, PinName scl1, PinName sda2, PinName scl2);
     virtual ~DoubleTemp();
 
     virtual SensorData* lastValue() override;

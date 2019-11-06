@@ -1,9 +1,9 @@
 #include "DataTypes.h"
 
-SensorData::SensorData(DataTypes t, const char n[64])
+SensorData::SensorData(DataTypes t, const char n[])
 : type(t)
 {
-    if (name) {
+    if (n) {
         name = new char[strlen(n) + 1];
         strcpy(name, n);
     }

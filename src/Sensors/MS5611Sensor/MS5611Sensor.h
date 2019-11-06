@@ -10,7 +10,7 @@
 class MS5611Sensor : public Sensor, private ms5611
 {
 public:
-    MS5611Sensor(PinName sda, PinName scl);
+    MS5611Sensor(const char name[], PinName sda, PinName scl);
     virtual ~MS5611Sensor();
 
     virtual SensorData* lastValue() override;

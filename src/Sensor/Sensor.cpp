@@ -1,7 +1,7 @@
 #include "Sensor.h"
 #include "BLELogger.h"
 
-Sensor::Sensor(const char *name)
+Sensor::Sensor(const char name[])
 : _delay_ms(10),
   _sensor_thread(osPriorityNormal, 1024, NULL, name)
 {

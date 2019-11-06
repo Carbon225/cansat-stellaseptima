@@ -1,8 +1,8 @@
 #include "TripleBaro.h"
 #include "BLELogger.h"
 
-TripleBaro::TripleBaro(PinName sda1, PinName scl1, PinName sda2, PinName scl2)
-: Sensor("triplebaro"),
+TripleBaro::TripleBaro(const char name[], PinName sda1, PinName scl1, PinName sda2, PinName scl2)
+: Sensor(name), _last_value(name),
   _ms1(sda1, scl1), _bmp1(sda1, scl1), _bmp2(sda2, scl2)
 {
 

@@ -10,7 +10,7 @@
 class BMP280Sensor : public Sensor, private BMP280
 {
 public:
-    BMP280Sensor(PinName sda, PinName scl);
+    BMP280Sensor(const char name[], PinName sda, PinName scl);
     virtual ~BMP280Sensor();
 
     virtual SensorData* lastValue() override;
