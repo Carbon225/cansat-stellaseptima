@@ -11,6 +11,7 @@ FSDataStore::FSDataStore(const char *path)
 
 FSDataStore::~FSDataStore()
 {
+    deinit();
     delete _data_path;
 }
 
@@ -84,6 +85,8 @@ mbed_error_status_t FSDataStore::reset()
     }
 
     LOGI("Resetting store\n");
+
+    // remove _data_path ?
 
     DIR *dir;
     struct dirent *ent;

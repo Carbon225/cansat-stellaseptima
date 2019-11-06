@@ -14,7 +14,6 @@ public:
 
     virtual SensorData* lastValue() = 0;
 
-    void setDataStore(SensorDataStore *store);
     void start(int delay_ms);
     void stop();
 
@@ -24,8 +23,6 @@ protected:
 
 private:
     int _delay_ms;
-
-    SensorDataStore *_store;
     
     Thread _sensor_thread;
     void _sensor_task();
