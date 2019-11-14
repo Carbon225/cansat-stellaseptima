@@ -33,6 +33,23 @@
         },
         "i2c2-scl": {
             "value": "NC"
+        },
+
+        "spi1-mosi": {
+            "value": "NC"
+        },
+        "spi1-miso": {
+            "value": "NC"
+        },
+        "spi1-clk": {
+            "value": "NC"
+        },
+
+        "lora-cs": {
+            "value": "NC"
+        },
+        "lora-dio0": {
+            "value": "NC"
         }
     },
     "target_overrides": {
@@ -43,7 +60,11 @@
             "platform.error-filename-capture-enabled": 1,
 
             "target.features_add": ["STORAGE"],
-            "target.components_add": ["FLASHIAP", "SD"]
+            "target.components_add": ["FLASHIAP", "SD"],
+
+            "sd.SPI_MOSI": "MBED_CONF_APP_SPI1_MOSI",
+            "sd.SPI_MISO": "MBED_CONF_APP_SPI1_MISO",
+            "sd.SPI_CLK": "MBED_CONF_APP_SPI1_CLK"
         },
         
         "NRF52_DK": {
@@ -62,9 +83,13 @@
             "led2": "P0_18",
             "led3": "P0_19",
 
-            "sd.SPI_MOSI": "P0_2",
-            "sd.SPI_MISO": "P0_26",
-            "sd.SPI_CLK": "P0_27",
+            "spi1-mosi": "P0_2",
+            "spi1-miso": "P0_26",
+            "spi1-clk": "P0_27",
+            
+            "lora-cs": "P0_31",
+            "lora-dio0": "P0_30",
+
             "sd.SPI_CS": "P0_11"
         },
         "NRF52840_DK": {
