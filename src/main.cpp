@@ -11,6 +11,7 @@
 
 #include "SDDataStore.h"
 
+#include "Radio.h"
 #include "SensorPacket.h"
 #include "GPSPacket.h"
 
@@ -96,8 +97,18 @@ void packetGenerator()
         
         if (packet != nullptr) {
             new(packet) SensorPacket(7, shtData1->temperature, bmpData1->pressure);
-            radioQueue.put(packet);
+
+            // LOGI("Begin packet\n");
+            // radio.beginPacket(false);
+            // LOGI("Write packet\n");
+            // radio.write((uint8_t*)packet->toBinary(), sizeof(packet_t));
+            // LOGI("End packet\n");
+            // radio.endPacket(true);
+
+
+            // radioQueue.put(packet);
             LOGI("%#x\n", *packet);
+            radioMempool.free(packet);
         }
         else {
             LOGI("Radio queue full\n");
