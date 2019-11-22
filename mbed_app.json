@@ -50,6 +50,13 @@
         },
         "lora-dio0": {
             "value": "NC"
+        },
+
+        "gps-rx": {
+            "value": "NC"
+        },
+        "gps-pps": {
+            "value": "NC"
         }
     },
     "target_overrides": {
@@ -89,6 +96,9 @@
             
             "lora-cs": "P0_31",
             "lora-dio0": "P0_30",
+
+            "gps-rx": "P0_28",
+            "gps-pps": "P0_4",
 
             "sd.SPI_CS": "P0_11"
         },

@@ -48,3 +48,18 @@ bool SHT31Data::valid()
     return temperature > -20.f && temperature < 70.f &&
            humidity > 0.f && humidity < 100.f;
 }
+
+// GPS
+
+GPSData::GPSData(const char name[])
+: GPSData(0.0, 0.0, name)
+{}
+
+GPSData::GPSData(double pLat, double pLng, const char name[])
+: SensorData(DataTypes::GPS_dt, name), lat(pLat), lng(pLng)
+{}
+
+bool GPSData::valid()
+{
+    return true;
+}

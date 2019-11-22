@@ -5,6 +5,7 @@
 #include "BMP280Sensor.h"
 #include "MS5611Sensor.h"
 #include "DoubleTemp.h"
+#include "GPSSensor.h"
 
 #include "SizedQueue.h"
 #include "SizedMempool.h"
@@ -39,6 +40,8 @@ SHT31Sensor SHT31_2("sht2", MBED_CONF_APP_I2C2_SDA, MBED_CONF_APP_I2C2_SCL);
 //     MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL,
 //     MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL
 // );
+
+GPSSensor gps("gps", MBED_CONF_APP_GPS_RX, MBED_CONF_APP_GPS_PPS);
 
 SDDataStore SDStore("/sd");
 
@@ -140,6 +143,8 @@ int main(void)
     // DoubleSHT31.start(1000);
     SHT31_1.start(100);
     SHT31_2.start(100);
+
+    gps.start(1000);
 
     SDStore.schedule(&MS5611, 500);
     SDStore.schedule(&BMP280_1, 500);
