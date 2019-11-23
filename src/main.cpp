@@ -121,9 +121,15 @@ void packetGenerator()
     }
 }
 
+GPS gpsTest(MBED_CONF_APP_GPS_RX);
+
 int main(void)
 {
     LOGI("Starting...\n");
+
+    gpsTest.start();
+
+    return 0;
    
     button.fall(buttonPress);
 
@@ -138,18 +144,18 @@ int main(void)
     BMP280_1.start(100);
     // BMP280_2.start(500);
 
-    MS5611.start(100);
+    // MS5611.start(100);
     
     // DoubleSHT31.start(1000);
-    SHT31_1.start(100);
-    SHT31_2.start(100);
+    // SHT31_1.start(100);
+    // SHT31_2.start(100);
 
-    gps.start(1000);
+    // gps.start(1000);
 
-    SDStore.schedule(&MS5611, 500);
-    SDStore.schedule(&BMP280_1, 500);
-    SDStore.schedule(&SHT31_1, 500);
-    SDStore.schedule(&SHT31_2, 500);
+    // SDStore.schedule(&MS5611, 500);
+    // SDStore.schedule(&BMP280_1, 500);
+    // SDStore.schedule(&SHT31_1, 500);
+    // SDStore.schedule(&SHT31_2, 500);
 
     packetgen_thread.start(packetGenerator);
 

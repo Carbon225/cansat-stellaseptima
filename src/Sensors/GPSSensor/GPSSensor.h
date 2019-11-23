@@ -4,6 +4,7 @@
 #include "mbed.h"
 #include "DataTypes.h"
 #include "Sensor.h"
+#include "GPS.h"
 
 class GPSSensor : public Sensor
 {
