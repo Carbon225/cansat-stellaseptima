@@ -50,13 +50,20 @@
         },
         "lora-dio0": {
             "value": "NC"
+        },
+
+        "gps-rx": {
+            "value": "NC"
+        },
+        "gps-pps": {
+            "value": "NC"
         }
     },
     "target_overrides": {
         "*": {
             "platform.all-stats-enabled": 1,
-            "platform.default-serial-baud-rate": 115200,
-            "platform.stdio-baud-rate": 115200,
+            "platform.default-serial-baud-rate": 9600,
+            "platform.stdio-baud-rate": 9600,
             "platform.error-filename-capture-enabled": 1,
 
             "target.features_add": ["STORAGE"],
@@ -66,7 +73,6 @@
             "sd.SPI_MISO": "MBED_CONF_APP_SPI1_MISO",
             "sd.SPI_CLK": "MBED_CONF_APP_SPI1_CLK"
         },
-        
         "NRF52_DK": {
             "ble-name": "\"CansatDK\"",
 
@@ -89,6 +95,9 @@
             
             "lora-cs": "P0_31",
             "lora-dio0": "P0_30",
+
+            "gps-rx": "P0_28",
+            "gps-pps": "P0_4",
 
             "sd.SPI_CS": "P0_11"
         },

@@ -1,4 +1,5 @@
 #include "SDDataStore.h"
+#include "BLELogger.h"
 
 SDDataStore::SDDataStore(const char mount[]) // ex. /sd
 : FSDataStore(mount),
@@ -15,24 +16,24 @@ SDDataStore::~SDDataStore()
 
 mbed_error_status_t SDDataStore::init()
 {
-    printf("Starting SD store\n");
+    LOGI("Starting SD store\n");
     _bd.init();
     
-    printf("Mounting filesystem...");
+    LOGI("Mounting filesystem...");
     fflush(stdout);
     int err = _fs.mount(&_bd);
     if (err) {
-        printf("Fail\nReformatting...");
+        LOGI("Fail\nReformatting...");
         fflush(stdout);
         
         if (_fs.reformat(&_bd) != 0) {
-            printf("Fail\n");
+            LOGI("Fail\n");
             _bd.deinit();
             _active = false;
             return MBED_ERROR_INITIALIZATION_FAILED;
         }
     }
-    printf("OK\n");
+    LOGI("OK\n");
 
     return FSDataStore::init();
 }

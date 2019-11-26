@@ -5,7 +5,8 @@
 
 enum DataTypes {
     Pressure_dt,
-    SHT31_dt
+    SHT31_dt,
+    GPS_dt
 };
 
 class SensorData
@@ -43,6 +44,20 @@ public:
 
     double temperature;
     double humidity;
+
+    virtual bool valid() override;
+};
+
+// GPS
+
+class GPSData : public SensorData
+{
+public:
+    GPSData(const char name[] = nullptr);
+    GPSData(double lat, double lng, const char name[] = nullptr);
+
+    double lat;
+    double lng;
 
     virtual bool valid() override;
 };

@@ -1,4 +1,5 @@
 #include "CansatBLE.h"
+#include "BLELogger.h"
 
 CansatBLE BLEController;
 
@@ -62,7 +63,7 @@ UARTService* CansatBLE::uart()
 void CansatBLE::on_init_complete(BLE::InitializationCompleteCallbackContext *params)
 {
     if (params->error != BLE_ERROR_NONE) {
-        printf("Ble initialization failed.");
+        LOGI("Ble initialization failed.");
         return;
     }
 
@@ -100,7 +101,7 @@ void CansatBLE::start_advertising()
     );
 
     if (error) {
-        printf("_ble.gap().setAdvertisingParameters() failed\r\n");
+        LOGI("_ble.gap().setAdvertisingParameters() failed\r\n");
         return;
     }
 
@@ -110,14 +111,14 @@ void CansatBLE::start_advertising()
     );
 
     if (error) {
-        printf("_ble.gap().setAdvertisingPayload() failed\r\n");
+        LOGI("_ble.gap().setAdvertisingPayload() failed\r\n");
         return;
     }
 
     error = _ble.gap().startAdvertising(ble::LEGACY_ADVERTISING_HANDLE);
 
     if (error) {
-        printf("_ble.gap().startAdvertising() failed\r\n");
+        LOGI("_ble.gap().startAdvertising() failed\r\n");
         return;
     }
 }
