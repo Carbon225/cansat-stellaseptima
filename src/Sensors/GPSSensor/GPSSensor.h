@@ -6,10 +6,10 @@
 #include "Sensor.h"
 #include "GPS.h"
 
-class GPSSensor : public Sensor
+class GPSSensor : public Sensor, private GPS
 {
 public:
-    GPSSensor(const char name[], PinName rx, PinName pps);
+    GPSSensor(const char name[], PinName rx, PinName pps = NC);
     virtual ~GPSSensor();
 
     virtual SensorData* lastValue() override;

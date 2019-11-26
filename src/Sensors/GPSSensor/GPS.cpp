@@ -1,14 +1,17 @@
 #include "GPS.h"
 #include "BLELogger.h"
+#include "minmea.h"
 
-GPS::GPS(PinName rx)
+Thread GPS::_thread(osPriorityNormal, 1024, NULL, "nmea");
+EventQueue GPS::_evQueue(16 * EVENTS_EVENT_SIZE);
+
+GPS::GPS(PinName rx, PinName pps)
 : _serial(NC, rx),
-  _pps(MBED_CONF_APP_GPS_PPS), 
-  _evQueue(32 * EVENTS_EVENT_SIZE),
+  _pps(pps),
   _sentenceEvent(_evQueue.event(callback(this, &GPS::_processSentence))),
-  _inputPos(0), _decoderPos(0)
+  _inputPos(0)
 {
-    _serial.baud(9600);
+    _serial.baud(115200);
     _serial.format(8, Serial::None, 1);
 }
 
@@ -17,78 +20,100 @@ GPS::~GPS()
 
 }
 
-DigitalOut gpsled(LED4);
-
-Thread gpsThread(osPriorityNormal, 1024, NULL, "gps");
-
-void GPS::start()
+minmea_sentence_gll GPS::GLL()
 {
-    gpsled = 1;
+    return _lastGLL;
+}
+
+minmea_sentence_zda GPS::ZDA()
+{
+    return _lastZDA;
+}
+
+void GPS::begin()
+{
+    if (_thread.get_state() == Thread::Deleted) {
+        _thread.start(callback(&GPS::_evQueue, &EventQueue::dispatch_forever));
+    }
     
     _serial.attach(callback(this, &GPS::_rxIrq), Serial::RxIrq);
     // _pps.rise(callback(this, &GPS::_ppsIrq));
-
-    gpsThread.start(callback(&_evQueue, &EventQueue::dispatch_forever));
-    // _evQueue.dispatch_forever();
 }
 
 void GPS::_ppsIrq()
 {
-    gpsled = 0;
-    _evQueue.call(callback(this, &GPS::_readSentence));
+    
 }
 
 void GPS::_rxIrq()
 {
+    static int sentenceStart = -1;
     do {
         char c = _serial.getc();
-        _buf[_inputPos++] = c;
-        _inputPos %= GPS_BUF_SIZE - 1;
+        
+        if (c == '$') {
+            sentenceStart = _inputPos;
+        }
 
-        if (c == '\r') {
-            gpsled = !gpsled;
-            // _evQueue.call(callback(this, &GPS::_processSentence));
-            _sentenceEvent.post();
+        _buf[_inputPos++] = c;
+        _inputPos %= GPS_BUF_SIZE;
+
+        if (c == '\r' && sentenceStart != -1) {
+            _sentenceEvent.post(sentenceStart);
+            sentenceStart = -1;
         }
     } while (_serial.readable());
 }
 
-void GPS::_readSentence()
-{
-    while (_serial.readable()) {
-        char c = _serial.getc();
-        _buf[_inputPos++] = c;
-        _inputPos %= GPS_BUF_SIZE - 1;
-
-        if (c == '\r') {
-            _evQueue.call(callback(this, &GPS::_processSentence));
-        }
-    }
-}
-
-void GPS::_processSentence()
+void GPS::_processSentence(int sentenceStart)
 {    
-    while (_buf[_decoderPos] != '$') {
-        if (_empty()) {
-            // puts("Not found\n");
-            return;
-        }
-        _decoderPos++;
-        _decoderPos %= GPS_BUF_SIZE;
-    }
+    LOGI("Sentence start: %d\n", sentenceStart);
 
-    // printf("Reading sentence\n");
-    static char sentence[16];
-    for (int i = 0; i < 6 && !_empty(); i++) {
-        sentence[i] = _buf[_decoderPos++];
-        _decoderPos %= GPS_BUF_SIZE;
+    static char sentence[128];
+    int i = 0;
+    
+    while (_buf[sentenceStart] != '\r' && sentenceStart != _inputPos) {
+        sentence[i++] = _buf[sentenceStart++];
+        sentenceStart %= GPS_BUF_SIZE;
     }
-    sentence[6] = '\n';
-    sentence[7] = '\0';
-    printf("%s\n", sentence);
-}
+    
+    sentence[i] = '\0';
+    LOGI("%s\n", sentence);
 
-bool GPS::_empty()
-{
-    return _decoderPos == _inputPos;
+    LOGI("Max stack: %u\n", _thread.max_stack());
+
+    // switch (minmea_sentence_id(sentence, false)) {
+    //     case MINMEA_SENTENCE_GLL: {
+    //         minmea_sentence_gll frame;
+    //         if (minmea_parse_gll(&frame, sentence)) {
+    //             _lastGLL = frame;
+    //             LOGI("lat: %d/%d, lng: %d/%d\n",
+    //                 frame.latitude.value, frame.latitude.scale,
+    //                 frame.longitude.value, frame.longitude.scale
+    //             );
+    //         }
+    //         else {
+    //             LOGI("GLL sentence invalid\n");
+    //         }
+    //     }
+    //     break;
+
+    //     case MINMEA_SENTENCE_ZDA: {
+    //         minmea_sentence_zda frame;
+    //         if (minmea_parse_zda(&frame, sentence)) {
+    //             _lastZDA = frame;
+    //             LOGI("Time: %d:%d\n",
+    //                 frame.time.minutes,
+    //                 frame.time.seconds
+    //             );
+    //         }
+    //         else {
+    //             LOGI("ZDA sentence invalid\n");
+    //         }
+    //     }
+    //     break;
+
+    //     default:
+    //     break;
+    // }
 }
