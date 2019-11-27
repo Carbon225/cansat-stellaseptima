@@ -25,7 +25,7 @@ CansatBLE& CansatBLE::Instance()
 }
 
 EventQueue CansatBLE::_event_queue(16 * EVENTS_EVENT_SIZE);
-Thread CansatBLE::_ev_thread;
+Thread CansatBLE::_ev_thread(osPriorityBelowNormal, 1024, NULL, "ble");
 BLE& CansatBLE::_ble(BLE::Instance());
 
 CansatBLE::CansatBLE()

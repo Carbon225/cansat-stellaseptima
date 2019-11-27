@@ -22,10 +22,10 @@ protected:
     virtual mbed_error_status_t read() = 0;
 
 private:
-    int _delay_ms;
-    
-    Thread _sensor_thread;
-    void _sensor_task();
+    int _eventId;
+
+    static EventQueue _sensorsEvQueue;
+    static Thread _sensorsThread;
 };
 
 #endif // _SENSOR_H_

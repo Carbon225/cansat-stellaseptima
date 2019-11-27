@@ -2,7 +2,7 @@
 #include "BLELogger.h"
 #include "minmea.h"
 
-Thread GPS::_thread(osPriorityNormal, 1024, NULL, "nmea");
+Thread GPS::_thread(osPriorityNormal, 256, NULL, "nmea");
 EventQueue GPS::_evQueue(16 * EVENTS_EVENT_SIZE);
 
 GPS::GPS(PinName rx, PinName pps)
@@ -67,8 +67,6 @@ void GPS::_rxIrq()
 
 void GPS::_processSentence(int sentenceStart)
 {    
-    LOGI("Sentence start: %d\n", sentenceStart);
-
     static char sentence[128];
     int i = 0;
     
@@ -79,8 +77,6 @@ void GPS::_processSentence(int sentenceStart)
     
     sentence[i] = '\0';
     LOGI("%s\n", sentence);
-
-    LOGI("Max stack: %u\n", _thread.max_stack());
 
     // switch (minmea_sentence_id(sentence, false)) {
     //     case MINMEA_SENTENCE_GLL: {

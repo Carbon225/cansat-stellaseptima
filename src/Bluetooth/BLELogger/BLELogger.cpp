@@ -1,7 +1,7 @@
 #include "BLELogger.h"
 #include "SoftSerial.h"
 
-#define BLE_UART_BUF_SIZE 128
+#define BLE_UART_BUF_SIZE 20
 
 // FileHandle* mbed::mbed_override_console(int) {
 //     static SoftSerial softSer(USBTX, NC);
