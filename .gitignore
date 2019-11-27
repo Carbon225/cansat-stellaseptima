@@ -7,4 +7,4 @@ BUILD
 ms5611
 Sht31
 BMP280
-BufferedSoftSerial
+SoftSerial

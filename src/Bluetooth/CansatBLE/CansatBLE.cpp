@@ -1,7 +1,7 @@
 #include "CansatBLE.h"
 #include "BLELogger.h"
 
-CansatBLE BLEController;
+static CansatBLE BLEController;
 
 void CansatBLE::_schedule_ble_events(BLE::OnEventsToProcessCallbackContext *context)
 {
@@ -11,9 +11,9 @@ void CansatBLE::_schedule_ble_events(BLE::OnEventsToProcessCallbackContext *cont
 void CansatBLE::init()
 {
     // TODO should (probably) check if thread is already running
-    // if (_ev_thread.get_state() == Thread::State::Inactive) {
+    if (_ev_thread.get_state() == Thread::Deleted) {
         _ev_thread.start(callback(&_event_queue, &EventQueue::dispatch_forever));
-    // }
+    }
 
     _ble.onEventsToProcess(_schedule_ble_events);
     BLEController.start();

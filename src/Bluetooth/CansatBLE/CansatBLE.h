@@ -42,6 +42,4 @@ private:
     static void _schedule_ble_events(BLE::OnEventsToProcessCallbackContext *context);
 };
 
-extern CansatBLE BLEController;
-
 #endif
