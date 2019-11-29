@@ -1,19 +1,31 @@
 #include "BLELogger.h"
-#include "BufferedSoftSerial.h"
+#include "SoftSerial.h"
 
-static BufferedSoftSerial pc(USBTX, NC, "pc");
+#define BLE_UART_BUF_SIZE 20
+
+// FileHandle* mbed::mbed_override_console(int) {
+//     static SoftSerial softSer(USBTX, NC);
+//     return &softSer;
+// }
 
 void LOGI(const char *fmt, ...)
 {
+    static Mutex serialMutex;
+
+    serialMutex.lock();
+
     va_list args;
     va_start(args, fmt);
 
-    if (pc.vprintf(fmt, args) <= 20 && BLEController.uart()) {
-        static char buf[21];
-        memset(buf, 0, 21);
+    if (vprintf(fmt, args) <= BLE_UART_BUF_SIZE && CansatBLE::Instance().uart()) {
+        static char buf[BLE_UART_BUF_SIZE + 1];
+        memset(buf, 0, BLE_UART_BUF_SIZE + 1);
         int len = vsprintf(buf, fmt, args);
-        BLEController.uart()->write(buf, len);
+        CansatBLE::Instance().uart()->writeString(buf);
+        // CansatBLE::Instance().uart()->write(buf, len);
     }
 
     va_end(args);
+
+    serialMutex.unlock();
 }

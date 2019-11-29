@@ -19,21 +19,20 @@ mbed_error_status_t SDDataStore::init()
     LOGI("Starting SD store\n");
     _bd.init();
     
-    LOGI("Mounting filesystem...");
-    fflush(stdout);
+    LOGI("Mounting filesystem\n");
     int err = _fs.mount(&_bd);
     if (err) {
-        LOGI("Fail\nReformatting...");
-        fflush(stdout);
+        LOGI("Mounting failed\n");
+        LOGI("Reformatting\n");
         
         if (_fs.reformat(&_bd) != 0) {
-            LOGI("Fail\n");
+            LOGI("Reformatting failed\n");
             _bd.deinit();
             _active = false;
             return MBED_ERROR_INITIALIZATION_FAILED;
         }
     }
-    LOGI("OK\n");
+    LOGI("SD OK\n");
 
     return FSDataStore::init();
 }

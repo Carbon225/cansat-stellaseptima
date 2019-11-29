@@ -39,7 +39,6 @@ SHT31Sensor SHT31_2("sht2", MBED_CONF_APP_I2C2_SDA, MBED_CONF_APP_I2C2_SCL);
 // );
 
 GPSSensor gps("gps", MBED_CONF_APP_GPS_RX, NC);
-GPS gps2(MBED_CONF_APP_GPS_RX);
 
 SDDataStore SDStore("/sd");
 
@@ -116,10 +115,30 @@ void packetGenerator()
             LOGI("Radio queue full\n");
         }
 
+        LOGI("---STATS---\n");
+
+        mbed_stats_heap_t heap_stats;
+        mbed_stats_heap_get(&heap_stats);
+        LOGI("Reserved heap: %u\n", heap_stats.reserved_size);
+        LOGI("Current heap: %u\n", heap_stats.current_size);
+        LOGI("Max heap size: %u\n", heap_stats.max_size);
+
+        int cnt = osThreadGetCount();
+        mbed_stats_stack_t *stats = (mbed_stats_stack_t*) malloc(cnt * sizeof(mbed_stats_stack_t));
+
+        cnt = mbed_stats_stack_get_each(stats, cnt);
+        for (int i = 0; i < cnt; i++) {
+            LOGI("Thread: 0x%X, Stack size: %u, Max stack: %u\n", 
+                    stats[i].thread_id, stats[i].reserved_size, stats[i].max_size);
+        }
+
+        free(stats);
+
+        LOGI("---STATS---\n");
+
         ThisThread::sleep_for(1000);
     }
 }
-
 
 
 int main(void)
@@ -139,11 +158,11 @@ int main(void)
 
     MS5611.start(100);
     
-    // DoubleSHT31.start(1000);
+    // // // DoubleSHT31.start(1000);
     SHT31_1.start(100);
     SHT31_2.start(100);
 
-    // gps.start(1000);
+    gps.start(0);
 
     SDStore.schedule(&MS5611, 500);
     SDStore.schedule(&BMP280_1, 500);
@@ -151,13 +170,6 @@ int main(void)
     SDStore.schedule(&SHT31_2, 500);
 
     packetgen_thread.start(packetGenerator);
-
-    gps2.begin();
-
-    while (true) {
-        LOGI("\nalive\n");
-        ThisThread::sleep_for(1000);
-    }
 
     return 0;
 }
