@@ -10,15 +10,17 @@
 class SHT31Sensor : public Sensor, private Sht31
 {
 public:
-    SHT31Sensor(PinName sda, PinName scl);
-    ~SHT31Sensor();
+    SHT31Sensor(const char name[], PinName sda, PinName scl);
+    virtual ~SHT31Sensor();
+
+    virtual SensorData* lastValue() override;
 
 protected:
     virtual mbed_error_status_t setup() override;
-    virtual mbed_error_status_t read(SensorData*) override;
+    virtual mbed_error_status_t read() override;
 
 private:
-    
+    SHT31Data _last_value;
 };
 
 #endif // _SHT31SENSOR_H_

@@ -1,17 +1,16 @@
-#ifndef _MS5611SENSOR_H_
-#define _MS5611SENSOR_H_
+#ifndef _GPSSENSOR_H_
+#define _GPSSENSOR_H_
 
 #include "mbed.h"
-#include "ms5611.h"
 #include "DataTypes.h"
 #include "Sensor.h"
+#include "GPS.h"
 
-
-class MS5611Sensor : public Sensor, private ms5611
+class GPSSensor : public Sensor, private GPS
 {
 public:
-    MS5611Sensor(const char name[], PinName sda, PinName scl);
-    virtual ~MS5611Sensor();
+    GPSSensor(const char name[], PinName rx, PinName pps = NC);
+    virtual ~GPSSensor();
 
     virtual SensorData* lastValue() override;
 
@@ -20,7 +19,7 @@ protected:
     virtual mbed_error_status_t read() override;
 
 private:
-    PressureData _last_value;
+    GPSData _last_value;
 };
 
 #endif // _MS5611SENSOR_H_

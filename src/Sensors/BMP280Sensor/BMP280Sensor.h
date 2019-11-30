@@ -1,17 +1,17 @@
-#ifndef _MS5611SENSOR_H_
-#define _MS5611SENSOR_H_
+#ifndef _BMP280SENSOR_H_
+#define _BMP280SENSOR_H_
 
 #include "mbed.h"
-#include "ms5611.h"
+#include "BMP280.h"
 #include "DataTypes.h"
 #include "Sensor.h"
 
 
-class MS5611Sensor : public Sensor, private ms5611
+class BMP280Sensor : public Sensor, private BMP280
 {
 public:
-    MS5611Sensor(const char name[], PinName sda, PinName scl);
-    virtual ~MS5611Sensor();
+    BMP280Sensor(const char name[], PinName sda, PinName scl);
+    virtual ~BMP280Sensor();
 
     virtual SensorData* lastValue() override;
 

@@ -4,40 +4,71 @@
 #include "mbed.h"
 
 enum DataTypes {
-    MS5611_dt,
-    SHT31_dt
+    Pressure_dt,
+    SHT31_dt,
+    GPS_dt
 };
 
 class SensorData
 {
 public:
-    SensorData(DataTypes t);
+    SensorData(DataTypes t, const char name[] = nullptr);
+    virtual ~SensorData();
     const DataTypes type;
+
+    char *name;
+
+    virtual bool valid() = 0;
 };
 
-class MS5611Data : public SensorData
+// Pressure
+
+class PressureData : public SensorData
 {
 public:
-    MS5611Data(double pressure, double temp);
+    PressureData(const char name[] = nullptr);
+    PressureData(double pressure, const char name[] = nullptr);
 
     double pressure;
-    double temperature;
+
+    virtual bool valid() override;
 };
+
+// SHT31
 
 class SHT31Data : public SensorData
 {
 public:
-    SHT31Data(double temp, double hum);
+    SHT31Data(const char name[] = nullptr);
+    SHT31Data(double temp, double hum, const char name[] = nullptr);
 
     double temperature;
     double humidity;
+
+    virtual bool valid() override;
 };
 
+// GPS
+
+class GPSData : public SensorData
+{
+public:
+    GPSData(const char name[] = nullptr);
+    GPSData(double lat, double lng, const char name[] = nullptr);
+
+    double lat;
+    double lng;
+
+    virtual bool valid() override;
+};
+
+/*
 union SensorDataUnion
 {
     SensorData a;
     MS5611Data b;
     SHT31Data c;
 };
+*/
 
 #endif // _DATATYPES_H_

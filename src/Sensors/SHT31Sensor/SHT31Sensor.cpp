@@ -1,7 +1,8 @@
 #include "SHT31Sensor.h"
+#include "BLELogger.h"
 
-SHT31Sensor::SHT31Sensor(PinName sda, PinName scl)
-: Sensor(), Sht31(sda, scl)
+SHT31Sensor::SHT31Sensor(const char name[], PinName sda, PinName scl)
+: Sensor(name), Sht31(sda, scl), _last_value(name)
 {
 
 }
@@ -11,18 +12,21 @@ SHT31Sensor::~SHT31Sensor()
 
 }
 
+SensorData* SHT31Sensor::lastValue()
+{
+    return &_last_value;
+}
+
 mbed_error_status_t SHT31Sensor::setup()
 {
-    printf("SHT31 started\n");
+    LOGI("SHT31 started\n");
     return 0;
 }
 
-mbed_error_status_t SHT31Sensor::read(SensorData* data)
+mbed_error_status_t SHT31Sensor::read()
 {
-    double temp = Sht31::readTemperature();
-    double hum = Sht31::readHumidity();
-
-    new(data) SHT31Data(temp, hum);
+    _last_value.temperature = Sht31::readTemperature();
+    _last_value.humidity = Sht31::readHumidity();
 
     return MBED_SUCCESS;
 }
