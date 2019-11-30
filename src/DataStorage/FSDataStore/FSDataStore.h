@@ -11,7 +11,7 @@ public:
 
     virtual mbed_error_status_t init() override;
     virtual mbed_error_status_t deinit() override;
-    virtual mbed_error_status_t saveData(SensorData* data) override;
+    virtual mbed_error_status_t saveData(Sensor* sensor) override;
     virtual mbed_error_status_t reset() override;
 
 protected:

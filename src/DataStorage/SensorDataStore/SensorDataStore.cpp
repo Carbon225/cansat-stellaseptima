@@ -18,5 +18,5 @@ void SensorDataStore::schedule(Sensor *sensor, int delay)
     if (_saveThread.get_state() == Thread::Deleted) {
         _saveThread.start(callback(&_saveQueue, &EventQueue::dispatch_forever));
     }
-    _saveQueue.call_every(delay, this, &SensorDataStore::saveData, sensor->lastValue());
+    _saveQueue.call_every(delay, this, &SensorDataStore::saveData, sensor);
 }

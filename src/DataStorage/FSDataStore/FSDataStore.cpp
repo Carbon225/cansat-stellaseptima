@@ -30,6 +30,10 @@ int FSDataStore::_encode(SensorData* data, uint8_t *out)
             memcpy(out + sizeof(SHT31Data::temperature), &((SHT31Data*)data)->humidity, sizeof(SHT31Data::humidity));
         }
         return sizeof(SHT31Data::temperature) + sizeof(SHT31Data::humidity);
+
+        case DataTypes::GPS_dt:
+        
+        break;
     }
 
     return 0;
@@ -48,8 +52,10 @@ mbed_error_status_t FSDataStore::deinit()
     return MBED_SUCCESS;
 }
 
-mbed_error_status_t FSDataStore::saveData(SensorData *data)
+mbed_error_status_t FSDataStore::saveData(Sensor *sensor)
 {
+    SensorData *data = sensor->lastValue();
+
     if (!isActive()) {
         MBED_WARNING(MBED_MAKE_ERROR(MBED_MODULE_FILESYSTEM, MBED_ERROR_CODE_NOT_READY), "Sensor data store not initialized");
         return MBED_ERROR_NOT_READY;

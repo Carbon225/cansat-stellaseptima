@@ -14,7 +14,7 @@ public:
 
     virtual mbed_error_status_t init() = 0;
     virtual mbed_error_status_t deinit() = 0;
-    virtual mbed_error_status_t saveData(SensorData* data) = 0;
+    virtual mbed_error_status_t saveData(Sensor* sensor) = 0;
     virtual mbed_error_status_t reset() = 0;
 
     void schedule(Sensor *sensor, int delay);
