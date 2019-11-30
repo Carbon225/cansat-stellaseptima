@@ -57,6 +57,13 @@
         },
         "gps-pps": {
             "value": "NC"
+        },
+
+        "motor-on-time": {
+            "value": "1.0"
+        },
+        "motor-pin": {
+            "value": "NC"
         }
     },
     "macros": [
@@ -105,7 +112,9 @@
             "gps-rx": "P0_28",
             "gps-pps": "P0_4",
 
-            "sd.SPI_CS": "P0_11"
+            "sd.SPI_CS": "P0_11",
+
+            "motor-pin": "P0_3"
         },
         "NRF52840_DK": {
             "ble-name": "\"7Cansat\"",
