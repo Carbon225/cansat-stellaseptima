@@ -12,6 +12,7 @@
 
 #include "SDDataStore.h"
 
+#include "Parachute.h"
 #include "Radio.h"
 #include "SensorPacket.h"
 #include "GPSPacket.h"
@@ -24,38 +25,43 @@ Thread packetgen_thread(osPriorityNormal, 1024, NULL, "packetgen");
 SizedQueue<RadioPacket, MBED_CONF_APP_RADIO_QUEUE_SIZE> radioQueue;
 SizedMempool<RadioPacket, MBED_CONF_APP_RADIO_QUEUE_SIZE> radioMempool;
 
-BMP280Sensor BMP280_1("bmp1", MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL);
-// BMP280Sensor BMP280_2("bmp2", MBED_CONF_APP_I2C2_SDA, MBED_CONF_APP_I2C2_SCL);
+namespace Sensors
+{
+    BMP280Sensor BMP280_1("bmp1", MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL);
+    // BMP280Sensor BMP280_2("bmp2", MBED_CONF_APP_I2C2_SDA, MBED_CONF_APP_I2C2_SCL);
 
-MS5611Sensor MS5611("ms5611", MBED_CONF_APP_I2C2_SDA, MBED_CONF_APP_I2C2_SCL);
+    MS5611Sensor MS5611("ms5611", MBED_CONF_APP_I2C2_SDA, MBED_CONF_APP_I2C2_SCL);
 
-SHT31Sensor SHT31_1("sht1", MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL);
-SHT31Sensor SHT31_2("sht2", MBED_CONF_APP_I2C2_SDA, MBED_CONF_APP_I2C2_SCL);
+    SHT31Sensor SHT31_1("sht1", MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL);
+    SHT31Sensor SHT31_2("sht2", MBED_CONF_APP_I2C2_SDA, MBED_CONF_APP_I2C2_SCL);
 
-// DoubleTemp DoubleSHT31(
-//     "doublesht",
-//     MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL,
-//     MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL
-// );
+    // DoubleTemp DoubleSHT31(
+    //     "doublesht",
+    //     MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL,
+    //     MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL
+    // );
 
-GPSSensor gps("gps", MBED_CONF_APP_GPS_RX, NC);
+    GPSSensor gps("gps", MBED_CONF_APP_GPS_RX, NC);
+}
 
 SDDataStore SDStore("/sd");
+
+Parachute parachute(&Sensors::MS5611, MBED_CONF_APP_MOTOR_PIN);
 
 void packetGenerator()
 {
     while (true) {
         LOGI("\n");
 
-        PressureData *msData = (PressureData*) MS5611.lastValue();
+        PressureData *msData = (PressureData*) Sensors::MS5611.lastValue();
         
-        SHT31Data *shtData1 = (SHT31Data*) SHT31_1.lastValue();
-        SHT31Data *shtData2 = (SHT31Data*) SHT31_2.lastValue();
+        SHT31Data *shtData1 = (SHT31Data*) Sensors::SHT31_1.lastValue();
+        SHT31Data *shtData2 = (SHT31Data*) Sensors::SHT31_2.lastValue();
         
-        PressureData *bmpData1 = (PressureData*) BMP280_1.lastValue();
+        PressureData *bmpData1 = (PressureData*) Sensors::BMP280_1.lastValue();
         // PressureData *bmpData2 = (PressureData*) BMP280_2.lastValue();
 
-        GPSData *gpsData = (GPSData*) gps.lastValue();
+        GPSData *gpsData = (GPSData*) Sensors::gps.lastValue();
 
         if (shtData1->valid())
             LOGI("s1T %.2f s1H %.1f\n", shtData1->temperature, shtData1->humidity);
@@ -91,6 +97,24 @@ void packetGenerator()
         else
            LOGI("BMP2 data invalid\n");
 */
+
+        switch (parachute.state()) {
+            case ParachuteState::Ascending:
+            LOGI("Parachute mode: Ascending\n");
+            break;
+
+            case ParachuteState::Descending:
+            LOGI("Parachute mode: Descending\n");
+            break;
+
+            case ParachuteState::Opening:
+            LOGI("Parachute mode: Opening\n");
+            break;
+
+            case ParachuteState::Done:
+            LOGI("Parachute mode: Done\n");
+            break;
+        }
 
         LOGI("Generating packet...\n");
 
@@ -153,21 +177,21 @@ int main(void)
         return 1;
     }
 
-    BMP280_1.start(100);
+    Sensors::BMP280_1.start(100);
     // BMP280_2.start(500);
 
-    MS5611.start(100);
+    Sensors::MS5611.start(100);
     
     // // // DoubleSHT31.start(1000);
-    SHT31_1.start(100);
-    SHT31_2.start(100);
+    Sensors::SHT31_1.start(100);
+    Sensors::SHT31_2.start(100);
 
-    gps.start(0);
+    // Sensors::gps.start(0);
 
-    SDStore.schedule(&MS5611, 500);
-    SDStore.schedule(&BMP280_1, 500);
-    SDStore.schedule(&SHT31_1, 500);
-    SDStore.schedule(&SHT31_2, 500);
+    SDStore.schedule(&Sensors::MS5611, 500);
+    SDStore.schedule(&Sensors::BMP280_1, 500);
+    SDStore.schedule(&Sensors::SHT31_1, 500);
+    SDStore.schedule(&Sensors::SHT31_2, 500);
 
     packetgen_thread.start(packetGenerator);
 

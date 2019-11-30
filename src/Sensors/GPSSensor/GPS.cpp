@@ -76,40 +76,40 @@ void GPS::_processSentence(int sentenceStart)
     }
     
     sentence[i] = '\0';
-    LOGI("%s\n", sentence);
+    // LOGI("%s\n", sentence);
 
-    // switch (minmea_sentence_id(sentence, false)) {
-    //     case MINMEA_SENTENCE_GLL: {
-    //         minmea_sentence_gll frame;
-    //         if (minmea_parse_gll(&frame, sentence)) {
-    //             _lastGLL = frame;
-    //             LOGI("lat: %d/%d, lng: %d/%d\n",
-    //                 frame.latitude.value, frame.latitude.scale,
-    //                 frame.longitude.value, frame.longitude.scale
-    //             );
-    //         }
-    //         else {
-    //             LOGI("GLL sentence invalid\n");
-    //         }
-    //     }
-    //     break;
+    switch (minmea_sentence_id(sentence, false)) {
+        case MINMEA_SENTENCE_GLL: {
+            minmea_sentence_gll frame;
+            if (minmea_parse_gll(&frame, sentence)) {
+                _lastGLL = frame;
+                LOGI("lat: %d/%d, lng: %d/%d\n",
+                    frame.latitude.value, frame.latitude.scale,
+                    frame.longitude.value, frame.longitude.scale
+                );
+            }
+            else {
+                LOGI("GLL sentence invalid\n");
+            }
+        }
+        break;
 
-    //     case MINMEA_SENTENCE_ZDA: {
-    //         minmea_sentence_zda frame;
-    //         if (minmea_parse_zda(&frame, sentence)) {
-    //             _lastZDA = frame;
-    //             LOGI("Time: %d:%d\n",
-    //                 frame.time.minutes,
-    //                 frame.time.seconds
-    //             );
-    //         }
-    //         else {
-    //             LOGI("ZDA sentence invalid\n");
-    //         }
-    //     }
-    //     break;
+        case MINMEA_SENTENCE_ZDA: {
+            minmea_sentence_zda frame;
+            if (minmea_parse_zda(&frame, sentence)) {
+                _lastZDA = frame;
+                LOGI("Time: %d:%d\n",
+                    frame.time.minutes,
+                    frame.time.seconds
+                );
+            }
+            else {
+                LOGI("ZDA sentence invalid\n");
+            }
+        }
+        break;
 
-    //     default:
-    //     break;
-    // }
+        default:
+        break;
+    }
 }
