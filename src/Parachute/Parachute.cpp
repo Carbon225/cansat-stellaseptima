@@ -26,13 +26,25 @@ void Parachute::start()
 
 void Parachute::_parachuteTask()
 {
-    static double minPressure = 0.0;
+    static double minPressure = -1.0;
 
     static double p[AVG_SIZE] = {0.0};
     static int oldest = 0;
     static double avgSum = 0.0;
 
     PressureData *data = (PressureData*) _baro->lastValue();
+
+    if (!data->valid()) {
+        return;
+    }
+
+    if (minPressure < 0) {
+        minPressure = data->pressure;
+        for (int i = 0; i < AVG_SIZE; i++) {
+            p[i] = minPressure;
+        }
+        avgSum = minPressure * AVG_SIZE;
+    }
     
     avgSum += data->pressure - p[oldest];
     p[oldest++] = data->pressure;
