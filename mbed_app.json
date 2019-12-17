@@ -51,6 +51,9 @@
         "lora-dio0": {
             "value": "NC"
         },
+        "lora-rst": {
+            "value": "NC"
+        },
 
         "gps-rx": {
             "value": "NC"
@@ -60,7 +63,7 @@
         },
 
         "motor-on-time": {
-            "value": "1.0"
+            "value": "5.0"
         },
         "motor-pin": {
             "value": "NC"
@@ -74,7 +77,6 @@
         "*": {
             "platform.default-serial-baud-rate": 9600,
             "platform.stdio-baud-rate": 115200,
-            "platform.memory-tracing-enabled": false,
 
             "target.features_add": ["STORAGE"],
             "target.components_add": ["FLASHIAP", "SD"],
@@ -86,6 +88,7 @@
         "NRF52_DK": {
             "platform.all-stats-enabled": 1,
             "platform.error-filename-capture-enabled": 1,
+            "platform.memory-tracing-enabled": false,
 
             "ble-name": "\"CansatDK\"",
 
@@ -97,10 +100,10 @@
             "i2c2-sda": "P0_25",
             "i2c2-scl": "P0_24",
 
-            "button1": "P0_13",
-            "led1": "P0_17",
-            "led2": "P0_18",
-            "led3": "P0_19",
+            "button1": "BUTTON1",
+            "led1": "LED1",
+            "led2": "LED2",
+            "led3": "LED3",
 
             "spi1-mosi": "P0_2",
             "spi1-miso": "P0_26",
@@ -108,13 +111,14 @@
             
             "lora-cs": "P0_31",
             "lora-dio0": "P0_30",
+            "lora-rst": "P0_29",
 
             "gps-rx": "P0_28",
             "gps-pps": "P0_4",
 
             "sd.SPI_CS": "P0_11",
 
-            "motor-pin": "P0_3"
+            "motor-pin": "LED4"
         },
         "NRF52840_DK": {
             "ble-name": "\"7Cansat\"",
