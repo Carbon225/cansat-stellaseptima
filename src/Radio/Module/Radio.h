@@ -6,7 +6,7 @@
 class Radio : public LoRaClass
 {
 public:
-    Radio();
+    Radio(PinName mosi, PinName miso, PinName clk, PinName cs, PinName rst, PinName dio0);
 
 private:
 
