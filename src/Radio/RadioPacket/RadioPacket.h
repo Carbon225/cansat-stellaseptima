@@ -24,12 +24,13 @@ typedef uint32_t packet_t;
 class RadioPacket
 {
 public:
-    packet_t toBinary();
+    packet_t* toBinary();
 
 protected:
     packet_t _data;
 };
 
-double map(double unscaledNum, double minAllowed, double maxAllowed,double min, double max);
+int scaleToBits(double x, double min, double max, double range);
+double scaleFromBits(double x, double min, double max, double range);
 
 #endif
