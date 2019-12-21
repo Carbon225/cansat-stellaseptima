@@ -122,7 +122,7 @@ void packetGenerator()
         static int packetID = 0;
         static RadioPacket packet;
 
-        if ((packetID & 0b111) == 4) {
+        if ((packetID % 4) == 0) {
             new(&packet) GPSPacket(packetID++, 50.069082, 19.943569);
         }
         else {
