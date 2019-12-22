@@ -196,6 +196,12 @@ int main(void)
     //     return 1;
     // }
 
+    // if (FlashStore.init() != MBED_SUCCESS) {
+    //     LOGI("Dataflash init failed\n");
+    //     FlashStore.deinit();
+    //     return 1;
+    // }
+
     Sensors::BMP280_1.start(100);
     Sensors::BMP280_2.start(500);
 
@@ -209,10 +215,11 @@ int main(void)
 
     // Sensors::gps.start(0);
 
-    // SDStore.schedule(&Sensors::MS5611, 500);
-    // SDStore.schedule(&Sensors::BMP280_1, 500);
-    // SDStore.schedule(&Sensors::SHT31_1, 500);
-    // SDStore.schedule(&Sensors::SHT31_2, 500);
+    // FlashStore.schedule(&Sensors::MS5611, 500);
+    // FlashStore.schedule(&Sensors::BMP280_1, 500);
+    // FlashStore.schedule(&Sensors::BMP280_2, 500);
+    // FlashStore.schedule(&Sensors::SHT31_1, 500);
+    // FlashStore.schedule(&Sensors::SHT31_2, 500);
 
     packetgen_thread.start(packetGenerator);
 

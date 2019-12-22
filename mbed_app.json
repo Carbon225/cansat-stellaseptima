@@ -79,7 +79,17 @@
             "platform.stdio-baud-rate": 115200,
 
             "target.features_add": ["STORAGE"],
-            "target.components_add": ["FLASHIAP", "SD"],
+            "target.components_add": ["FLASHIAP", "DATAFLASH", "SPIF", "SD"],
+
+            "dataflash.SPI_MOSI": "MBED_CONF_APP_SPI1_MOSI",
+            "dataflash.SPI_MISO": "MBED_CONF_APP_SPI1_MISO",
+            "dataflash.SPI_CLK": "MBED_CONF_APP_SPI1_CLK",
+            "dataflash.SPI_FREQ": "1000000",
+
+            "spif-driver.SPI_MOSI": "MBED_CONF_APP_SPI1_MOSI",
+            "spif-driver.SPI_MISO": "MBED_CONF_APP_SPI1_MISO",
+            "spif-driver.SPI_CLK": "MBED_CONF_APP_SPI1_CLK",
+            "spif-driver.SPI_FREQ": "1000000",
 
             "sd.SPI_MOSI": "MBED_CONF_APP_SPI1_MOSI",
             "sd.SPI_MISO": "MBED_CONF_APP_SPI1_MISO",
@@ -117,6 +127,8 @@
             "gps-pps": "P0_4",
 
             "sd.SPI_CS": "P0_11",
+            "dataflash.SPI_CS": "P0_12",
+            "spif-driver.SPI_CS": "P0_12",
 
             "motor-pin": "LED4"
         },
