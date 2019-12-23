@@ -6,7 +6,7 @@
 #include "DoubleTemp.h"
 #include "GPSSensor.h"
 
-#include "SDDataStore.h"
+#include "InternalDataStore.h"
 
 #include "Parachute.h"
 #include "Radio.h"
@@ -37,7 +37,7 @@ namespace Sensors
     GPSSensor gps("gps", MBED_CONF_APP_GPS_RX, NC);
 }
 
-SDDataStore SDStore("/sd");
+InternalDataStore internalFlash("/int");
 
 Parachute parachute(&Sensors::MS5611, MBED_CONF_APP_MOTOR_PIN);
 
@@ -190,17 +190,11 @@ int main(void)
 
     LOGI("Lora started\n");
 
-    // if (SDStore.init() != 0) {
-    //     LOGI("Store init failed\n");
-    //     SDStore.deinit();
-    //     return 1;
-    // }
-
-    // if (FlashStore.init() != MBED_SUCCESS) {
-    //     LOGI("Dataflash init failed\n");
-    //     FlashStore.deinit();
-    //     return 1;
-    // }
+    if (internalFlash.init() != MBED_SUCCESS) {
+        LOGI("Internal flash init failed\n");
+        internalFlash.deinit();
+        return 1;
+    }
 
     Sensors::BMP280_1.start(100);
     Sensors::BMP280_2.start(500);
@@ -215,13 +209,16 @@ int main(void)
 
     // Sensors::gps.start(0);
 
-    // FlashStore.schedule(&Sensors::MS5611, 500);
-    // FlashStore.schedule(&Sensors::BMP280_1, 500);
-    // FlashStore.schedule(&Sensors::BMP280_2, 500);
-    // FlashStore.schedule(&Sensors::SHT31_1, 500);
-    // FlashStore.schedule(&Sensors::SHT31_2, 500);
+    internalFlash.schedule(&Sensors::MS5611, 1000);
+    internalFlash.schedule(&Sensors::BMP280_1, 1000);
+    internalFlash.schedule(&Sensors::BMP280_2, 1000);
+    internalFlash.schedule(&Sensors::SHT31_1, 1000);
+    internalFlash.schedule(&Sensors::SHT31_2, 1000);
 
-    packetgen_thread.start(packetGenerator);
+    // packetgen_thread.start(packetGenerator);
+
+    ThisThread::sleep_for(5000);
+    internalFlash.listFiles();
 
     return 0;
 }

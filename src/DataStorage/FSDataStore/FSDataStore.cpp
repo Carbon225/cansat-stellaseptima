@@ -1,21 +1,50 @@
 #include "FSDataStore.h"
 #include "BLELogger.h"
 
-FSDataStore::FSDataStore(const char *path)
+static int getNewFlightNumber(const char path[])
 {
-    int len = strlen(path);
-    _data_path = new char[len + 1];
-    _data_path[len] = '\0';
-    strcpy(_data_path, path);
+    int maxNum = 0;
+    DIR *dir;
+    struct dirent *ent;
+    if ((dir = opendir(path)) != NULL) {
+        while ((ent = readdir(dir)) != NULL) {
+            int num = -1;
+            sscanf(ent->d_name, "%u", &num);
+            if (num > maxNum) {
+                maxNum = num;
+            }
+        }
+        closedir(dir);
+    }
+
+    return maxNum + 1;
+}
+
+FSDataStore::FSDataStore(const char path[])
+{
+    memcpy(_dataPath, 0, sizeof(_dataPath));
+    sprintf(_dataPath, "%s", path);
 }
 
 FSDataStore::~FSDataStore()
 {
     deinit();
-    delete _data_path;
 }
 
-int FSDataStore::_encode(SensorData* data, uint8_t *out)
+void FSDataStore::listFiles()
+{
+    LOGI("ls %s\n", _dataPath);
+    DIR *dir;
+    struct dirent *ent;
+    if ((dir = opendir(_dataPath)) != NULL) {
+        while ((ent = readdir(dir)) != NULL) {
+            LOGI("- %s\n", ent->d_name);
+        }
+        closedir(dir);
+    }
+}
+
+int FSDataStore::_encode(SensorData *data, uint8_t *out)
 {
     switch (data->type) {
         case DataTypes::Pressure_dt:
@@ -41,7 +70,8 @@ int FSDataStore::_encode(SensorData* data, uint8_t *out)
 
 mbed_error_status_t FSDataStore::init()
 {
-    mkdir(_data_path, 0777);   
+    sprintf(_dataPath + strlen(_dataPath), "/%d", getNewFlightNumber(_dataPath));
+    mkdir(_dataPath, 0777);   
     _active = true;
     return MBED_SUCCESS;
 }
@@ -69,7 +99,7 @@ mbed_error_status_t FSDataStore::saveData(Sensor *sensor)
     _encode(data, encoded);
 
     char path[128] = {'\0'};
-    sprintf(path, "%s/%s.dat", _data_path, data->name);
+    sprintf(path, "%s/%s.dat", _dataPath, data->name);
 
     FILE *f = fopen(path, "ab");
     if (f) {
@@ -96,12 +126,12 @@ mbed_error_status_t FSDataStore::reset()
 
     DIR *dir;
     struct dirent *ent;
-    if ((dir = opendir(_data_path)) != NULL) {
+    if ((dir = opendir(_dataPath)) != NULL) {
         while ((ent = readdir(dir)) != NULL) {
             if (ent->d_name[0] != '.') {
                 LOGI("Removing %s\n", ent->d_name);
                 char buf[128] = {'\0'};
-                sprintf(buf, "%s/%s", _data_path, ent->d_name);
+                sprintf(buf, "%s/%s", _dataPath, ent->d_name);
                 remove(buf);
             }
         }

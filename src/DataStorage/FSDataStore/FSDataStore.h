@@ -9,6 +9,8 @@ public:
     FSDataStore(const char *path);
     virtual ~FSDataStore();
 
+    void listFiles();
+
     virtual mbed_error_status_t init() override;
     virtual mbed_error_status_t deinit() override;
     virtual mbed_error_status_t saveData(Sensor* sensor) override;
@@ -18,7 +20,7 @@ protected:
     virtual int _encode(SensorData *data, uint8_t *out = nullptr) override;
 
 private:
-    char *_data_path;
+    char _dataPath[128];
 };
 
 
