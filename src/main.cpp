@@ -53,7 +53,7 @@ Radio radio(
 void packetGenerator()
 {
     while (true) {
-        LOGI("\n");
+        LOGI("Free = %ld\n", internalFlash.freeSpace());
 
         PressureData *msData = (PressureData*) Sensors::MS5611.lastValue();
         
@@ -215,7 +215,7 @@ int main(void)
     internalFlash.schedule(&Sensors::SHT31_1, 1000);
     internalFlash.schedule(&Sensors::SHT31_2, 1000);
 
-    // packetgen_thread.start(packetGenerator);
+    packetgen_thread.start(packetGenerator);
 
     ThisThread::sleep_for(5000);
     internalFlash.listFiles();

@@ -31,6 +31,13 @@ FSDataStore::~FSDataStore()
     deinit();
 }
 
+unsigned long FSDataStore::freeSpace()
+{
+    struct statvfs stat;
+    statvfs(_dataPath, &stat);
+    return stat.f_bavail * stat.f_bsize;
+}
+
 void FSDataStore::listFiles()
 {
     LOGI("ls %s\n", _dataPath);

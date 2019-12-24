@@ -10,6 +10,7 @@ public:
     virtual ~FSDataStore();
 
     void listFiles();
+    unsigned long freeSpace();
 
     virtual mbed_error_status_t init() override;
     virtual mbed_error_status_t deinit() override;
