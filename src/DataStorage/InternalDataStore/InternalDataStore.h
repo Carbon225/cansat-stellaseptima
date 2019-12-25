@@ -15,7 +15,7 @@ public:
     virtual mbed_error_status_t deinit() override;
 
 protected:
-    // virtual int _encode(SensorData *data, uint8_t *out = nullptr) override;
+    virtual int _encode(SensorData *data, uint8_t *out = nullptr) override;
 
 private:
     FlashIAPBlockDevice _bd;
