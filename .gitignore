@@ -6,5 +6,4 @@ mbed-os
 BUILD
 ms5611
 Sht31
-SoftSerial
 BMP280
