@@ -3,10 +3,16 @@
 
 #define BLE_UART_BUF_SIZE 20
 
+static USBSerial mySerial;
+
 FileHandle* mbed::mbed_override_console(int) {
-    static USBSerial mySerial;
-    // static Serial mySerial(MBED_CONF_APP_DEBUG_TX, NC, NULL, 115200);
     return &mySerial;
+}
+
+void disableUSBSerial()
+{
+    mySerial.disconnect();
+    mySerial.deinit();
 }
 
 void LOGI(const char *fmt, ...)

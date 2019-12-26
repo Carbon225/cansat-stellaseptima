@@ -7,6 +7,9 @@
 #include "GPSSensor.h"
 
 #include "InternalDataStore.h"
+#include "CopyData.h"
+#include "Partitions.h"
+#include "USBDrive.h"
 
 #include "Parachute.h"
 #include "Radio.h"
@@ -17,6 +20,8 @@
 #include "BLELogger.h"
 
 Thread packetgen_thread(osPriorityNormal, 1024, NULL, "packetgen");
+
+DigitalIn usbButton(MBED_CONF_APP_BUTTON1, PinMode::PullUp);
 
 namespace Sensors
 {
@@ -167,6 +172,14 @@ void packetGenerator()
 
 int main(void)
 {
+    Partitions::initialize();
+    
+    if (usbButton == 0) {
+        USBDrive::prepareFS();
+        disableUSBSerial();
+        USBDrive::connect();
+    }
+    
     LOGI("Starting...\n");
 
     CansatBLE::init();
@@ -210,15 +223,19 @@ int main(void)
     // Sensors::gps.start(0);
 
     internalFlash.schedule(&Sensors::MS5611, 1000);
-    internalFlash.schedule(&Sensors::BMP280_1, 1000);
-    internalFlash.schedule(&Sensors::BMP280_2, 1000);
-    internalFlash.schedule(&Sensors::SHT31_1, 1000);
-    internalFlash.schedule(&Sensors::SHT31_2, 1000);
+    // internalFlash.schedule(&Sensors::BMP280_1, 1000);
+    // internalFlash.schedule(&Sensors::BMP280_2, 1000);
+    // internalFlash.schedule(&Sensors::SHT31_1, 1000);
+    // internalFlash.schedule(&Sensors::SHT31_2, 1000);
 
-    packetgen_thread.start(packetGenerator);
+    // packetgen_thread.start(packetGenerator);
 
-    ThisThread::sleep_for(5000);
+    // ThisThread::sleep_for(5000);
+    LOGI("Free = %lu\n", internalFlash.freeSpace());
     internalFlash.listFiles();
+    // copyData("/int", "/usb");
+
+    LOGI("\nSYSTEM READY\n\n");
 
     return 0;
 }

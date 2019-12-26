@@ -4,6 +4,8 @@
 #include "mbed.h"
 #include "CansatBLE.h"
 
+void disableUSBSerial();
+
 void LOGI(const char *fmt, ...);
 
 #endif

@@ -135,8 +135,8 @@
         "NRF52840_DK": {
             "ble-name": "\"7Cansat\"",
 
-            "flashiap-block-device.base-address": "0x61000",
-            "flashiap-block-device.size": "0x9F000‬",
+            "flashiap-block-device.base-address": "0x7A000",
+            "flashiap-block-device.size": "0x86000‬",
 
             "debug-tx": "P0_15",
 
