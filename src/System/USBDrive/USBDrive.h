@@ -3,7 +3,9 @@
 
 namespace USBDrive
 {
+    void connectIRQ();
     void connect();
+    void prepareFS();
 }
 
 #endif

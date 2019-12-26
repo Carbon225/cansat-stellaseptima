@@ -18,7 +18,7 @@ protected:
     virtual int _encode(SensorData *data, uint8_t *out = nullptr) override;
 
 private:
-    FlashIAPBlockDevice _bd;
+    BlockDevice *_bd;
     LittleFileSystem _fs;
 };
 

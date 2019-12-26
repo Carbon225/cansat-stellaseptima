@@ -1,37 +1,40 @@
 #include "Partitions.h"
 
+#include "BLELogger.h"
 #include "MBRBlockDevice.h"
 #include "FlashIAPBlockDevice.h"
-#include "FATFileSystem.h"
-#include "LittleFileSystem.h"
+
+static FlashIAPBlockDevice flashBD;
+static MBRBlockDevice configPart(&flashBD, 1);
+static MBRBlockDevice lfsPart(&flashBD, 2);
+
+BlockDevice* Partitions::flash()
+{
+    return &flashBD;
+}
+
+BlockDevice* Partitions::data()
+{
+    return &lfsPart;
+}
+
+BlockDevice* Partitions::usb()
+{
+    return NULL;
+}
+
+BlockDevice* Partitions::config()
+{
+    return &configPart;
+}
 
 void Partitions::initialize()
 {
-    static FlashIAPBlockDevice flash;
-    static LittleFileSystem lfs("lfs");
-    static FATFileSystem fatfs("fat");
+    LOGI("Initializing partitions...\n");
 
-    flash.init();
-    MBRBlockDevice::partition(&flash, 1, 0x83, 0);
-    MBRBlockDevice::partition(&flash, 2, 0x83, 0x4F000);
-    static MBRBlockDevice fatPart(&flash, 1);
-    static MBRBlockDevice lfsPart(&flash, 2);
+    flashBD.init();
+    MBRBlockDevice::partition(&flashBD, 1, 0x83, 0x0, 0x1000);
+    MBRBlockDevice::partition(&flashBD, 2, 0x83, 0x1000);
 
-    int err = fatfs.mount(&fatPart);
-    if (err) {
-        if (fatfs.reformat(&fatPart) != 0) {
-            fatPart.deinit();
-            flash.deinit();
-            return;
-        }
-    }
-
-    err = lfs.mount(&lfsPart);
-    if (err) {
-        if (lfs.reformat(&lfsPart) != 0) {
-            lfsPart.deinit();
-            flash.deinit();
-            return;
-        }
-    }
+    LOGI("Complete\n");
 }

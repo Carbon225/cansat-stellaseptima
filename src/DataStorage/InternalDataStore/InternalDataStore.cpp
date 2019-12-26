@@ -1,10 +1,12 @@
 #include "InternalDataStore.h"
 #include "BLELogger.h"
 #include "RadioPacket.h"
+#include "Partitions.h"
 
 InternalDataStore::InternalDataStore(const char mount[]) // ex. /sd
 : FSDataStore(mount),
-  _fs(mount + 1) // trim /
+  _fs(mount + 1), // trim /
+  _bd(Partitions::data())
 {
     
 }
@@ -57,22 +59,22 @@ int InternalDataStore::_encode(SensorData *data, uint8_t *out)
 mbed_error_status_t InternalDataStore::init()
 {
     LOGI("Starting internal flash\n");
-    _bd.init();
+    _bd->init();
 
-    LOGI("Flash block device size: %llu\n",         _bd.size());
-    LOGI("Flash block device read size: %llu\n",    _bd.get_read_size());
-    LOGI("Flash block device program size: %llu\n", _bd.get_program_size());
-    LOGI("Flash block device erase size: %llu\n",   _bd.get_erase_size());
+    LOGI("Flash block device size: %llu\n",         _bd->size());
+    LOGI("Flash block device read size: %llu\n",    _bd->get_read_size());
+    LOGI("Flash block device program size: %llu\n", _bd->get_program_size());
+    LOGI("Flash block device erase size: %llu\n",   _bd->get_erase_size());
     
     LOGI("Mounting filesystem\n");
-    int err = _fs.mount(&_bd);
+    int err = _fs.mount(_bd);
     if (err) {
         LOGI("Mounting failed\n");
         LOGI("Reformatting\n");
         
-        if (_fs.reformat(&_bd) != 0) {
+        if (_fs.reformat(_bd) != 0) {
             LOGI("Reformatting failed\n");
-            _bd.deinit();
+            _bd->deinit();
             _active = false;
             return MBED_ERROR_INITIALIZATION_FAILED;
         }
@@ -86,7 +88,7 @@ mbed_error_status_t InternalDataStore::deinit()
 {
     FSDataStore::deinit();
     _fs.unmount();
-    _bd.deinit();
+    _bd->deinit();
     _active = false;
     return MBED_SUCCESS;
 }
