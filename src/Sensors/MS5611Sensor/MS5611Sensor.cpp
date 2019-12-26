@@ -2,7 +2,7 @@
 #include "BLELogger.h"
 
 MS5611Sensor::MS5611Sensor(const char name[], PinName sda, PinName scl)
-: Sensor(name), ms5611(sda, scl), _last_value(name)
+: Sensor(name), ms5611(sda, scl, CSBpin_1), _last_value(name)
 {
 
 }

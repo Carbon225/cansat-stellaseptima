@@ -1,5 +1,4 @@
 #include "mbed.h"
-#include "rtos.h"
 
 #include "SHT31Sensor.h"
 #include "BMP280Sensor.h"
@@ -7,10 +6,10 @@
 #include "DoubleTemp.h"
 #include "GPSSensor.h"
 
-#include "SizedQueue.h"
-#include "SizedMempool.h"
-
-#include "SDDataStore.h"
+#include "InternalDataStore.h"
+#include "CopyData.h"
+#include "Partitions.h"
+#include "USBDrive.h"
 
 #include "Parachute.h"
 #include "Radio.h"
@@ -22,15 +21,14 @@
 
 Thread packetgen_thread(osPriorityNormal, 1024, NULL, "packetgen");
 
-SizedQueue<RadioPacket, MBED_CONF_APP_RADIO_QUEUE_SIZE> radioQueue;
-SizedMempool<RadioPacket, MBED_CONF_APP_RADIO_QUEUE_SIZE> radioMempool;
+DigitalIn usbButton(MBED_CONF_APP_BUTTON1, PinMode::PullUp);
 
 namespace Sensors
 {
     BMP280Sensor BMP280_1("bmp1", MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL);
-    // BMP280Sensor BMP280_2("bmp2", MBED_CONF_APP_I2C2_SDA, MBED_CONF_APP_I2C2_SCL);
+    BMP280Sensor BMP280_2("bmp2", MBED_CONF_APP_I2C2_SDA, MBED_CONF_APP_I2C2_SCL);
 
-    MS5611Sensor MS5611("ms5611", MBED_CONF_APP_I2C2_SDA, MBED_CONF_APP_I2C2_SCL);
+    MS5611Sensor MS5611("ms5611", MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL);
 
     SHT31Sensor SHT31_1("sht1", MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL);
     SHT31Sensor SHT31_2("sht2", MBED_CONF_APP_I2C2_SDA, MBED_CONF_APP_I2C2_SCL);
@@ -44,14 +42,23 @@ namespace Sensors
     GPSSensor gps("gps", MBED_CONF_APP_GPS_RX, NC);
 }
 
-SDDataStore SDStore("/sd");
+InternalDataStore internalFlash("/int");
 
 Parachute parachute(&Sensors::MS5611, MBED_CONF_APP_MOTOR_PIN);
+
+Radio radio(
+    MBED_CONF_APP_SPI1_MOSI,
+    MBED_CONF_APP_SPI1_MISO,
+    MBED_CONF_APP_SPI1_CLK,
+    MBED_CONF_APP_LORA_CS,
+    MBED_CONF_APP_LORA_RST,
+    MBED_CONF_APP_LORA_DIO0
+);
 
 void packetGenerator()
 {
     while (true) {
-        LOGI("\n");
+        LOGI("Free = %ld\n", internalFlash.freeSpace());
 
         PressureData *msData = (PressureData*) Sensors::MS5611.lastValue();
         
@@ -59,7 +66,7 @@ void packetGenerator()
         SHT31Data *shtData2 = (SHT31Data*) Sensors::SHT31_2.lastValue();
         
         PressureData *bmpData1 = (PressureData*) Sensors::BMP280_1.lastValue();
-        // PressureData *bmpData2 = (PressureData*) BMP280_2.lastValue();
+        PressureData *bmpData2 = (PressureData*) Sensors::BMP280_2.lastValue();
 
         GPSData *gpsData = (GPSData*) Sensors::gps.lastValue();
 
@@ -86,17 +93,16 @@ void packetGenerator()
         else
            LOGI("BMP1 data invalid\n");
 
-        if (gpsData->valid())
-            LOGI("lat: %.4f lng: %.4f\n", gpsData->lat, gpsData->lng);
-        else
-           LOGI("GPS data invalid\n");
 
-/*
         if (bmpData2->valid())
             LOGI("b2P %.2f\n", bmpData2->pressure);
         else
            LOGI("BMP2 data invalid\n");
-*/
+
+        if (gpsData->valid())
+            LOGI("lat: %.4f lng: %.4f\n", gpsData->lat, gpsData->lng);
+        else
+           LOGI("GPS data invalid\n");
 
         switch (parachute.state()) {
             case ParachuteState::Ascending:
@@ -118,47 +124,46 @@ void packetGenerator()
 
         LOGI("Generating packet...\n");
 
-        RadioPacket *packet = radioMempool.alloc();
-        
-        if (packet != nullptr) {
-            new(packet) SensorPacket(7, shtData1->temperature, bmpData1->pressure);
+        static int packetID = 0;
+        static RadioPacket packet;
 
-            // LOGI("Begin packet\n");
-            // radio.beginPacket(false);
-            // LOGI("Write packet\n");
-            // radio.write((uint8_t*)packet->toBinary(), sizeof(packet_t));
-            // LOGI("End packet\n");
-            // radio.endPacket(true);
-
-
-            // radioQueue.put(packet);
-            LOGI("%#x\n", *packet);
-            radioMempool.free(packet);
+        if ((packetID % 4) == 0) {
+            new(&packet) GPSPacket(packetID++, 50.069082, 19.943569);
         }
         else {
-            LOGI("Radio queue full\n");
+            new(&packet) SensorPacket(packetID++, shtData1->temperature, msData->pressure);
         }
 
-        LOGI("---STATS---\n");
+        radio.beginPacket(8);
+        radio.write((uint8_t*)packet.toBinary(), 4);
+        radio.write(0xff);
+        radio.write(0xff);
+        radio.write(0xff);
+        radio.write(0xff);
+        radio.endPacket(true);
 
-        mbed_stats_heap_t heap_stats;
-        mbed_stats_heap_get(&heap_stats);
-        LOGI("Reserved heap: %u\n", heap_stats.reserved_size);
-        LOGI("Current heap: %u\n", heap_stats.current_size);
-        LOGI("Max heap size: %u\n", heap_stats.max_size);
+        LOGI("%#x\n", *packet.toBinary());
 
-        int cnt = osThreadGetCount();
-        mbed_stats_stack_t *stats = (mbed_stats_stack_t*) malloc(cnt * sizeof(mbed_stats_stack_t));
+        // LOGI("---STATS---\n");
 
-        cnt = mbed_stats_stack_get_each(stats, cnt);
-        for (int i = 0; i < cnt; i++) {
-            LOGI("Thread: 0x%X, Stack size: %u, Max stack: %u\n", 
-                    stats[i].thread_id, stats[i].reserved_size, stats[i].max_size);
-        }
+        // mbed_stats_heap_t heap_stats;
+        // mbed_stats_heap_get(&heap_stats);
+        // LOGI("Reserved heap: %u\n", heap_stats.reserved_size);
+        // LOGI("Current heap: %u\n", heap_stats.current_size);
+        // LOGI("Max heap size: %u\n", heap_stats.max_size);
 
-        free(stats);
+        // int cnt = osThreadGetCount();
+        // mbed_stats_stack_t *stats = (mbed_stats_stack_t*) malloc(cnt * sizeof(mbed_stats_stack_t));
 
-        LOGI("---STATS---\n");
+        // cnt = mbed_stats_stack_get_each(stats, cnt);
+        // for (int i = 0; i < cnt; i++) {
+        //     LOGI("Thread: 0x%X, Stack size: %u, Max stack: %u\n", 
+        //             stats[i].thread_id, stats[i].reserved_size, stats[i].max_size);
+        // }
+
+        // free(stats);
+
+        // LOGI("---STATS---\n");
 
         ThisThread::sleep_for(1000);
     }
@@ -167,20 +172,49 @@ void packetGenerator()
 
 int main(void)
 {
+    Partitions::initialize();
+    
+    if (usbButton == 0) {
+        USBDrive::prepareFS();
+        disableUSBSerial();
+        USBDrive::connect();
+    }
+    
     LOGI("Starting...\n");
 
     CansatBLE::init();
 
-    if (SDStore.init() != 0) {
-        LOGI("Store init failed\n");
-        SDStore.deinit();
+    int txPower = 20;
+    int sf = 8;
+    // long sbw = 62.5E3;
+    long sbw = 31.25E3;
+    // long sbw = 125E3;
+    int crd = 8;
+
+    while (!radio.begin(4346E5)) {
+        LOGI("Starting Lora failed\n");
+        ThisThread::sleep_for(500);
+    }
+
+    radio.setTxPower(txPower);
+    radio.setSpreadingFactor(sf);
+    radio.setSignalBandwidth(sbw);
+    radio.setCodingRate4(crd);
+
+    LOGI("Lora started\n");
+
+    if (internalFlash.init() != MBED_SUCCESS) {
+        LOGI("Internal flash init failed\n");
+        internalFlash.deinit();
         return 1;
     }
 
     Sensors::BMP280_1.start(100);
-    // BMP280_2.start(500);
+    Sensors::BMP280_2.start(500);
 
     Sensors::MS5611.start(100);
+
+    parachute.start();
     
     // // // DoubleSHT31.start(1000);
     Sensors::SHT31_1.start(100);
@@ -188,12 +222,20 @@ int main(void)
 
     // Sensors::gps.start(0);
 
-    SDStore.schedule(&Sensors::MS5611, 500);
-    SDStore.schedule(&Sensors::BMP280_1, 500);
-    SDStore.schedule(&Sensors::SHT31_1, 500);
-    SDStore.schedule(&Sensors::SHT31_2, 500);
+    internalFlash.schedule(&Sensors::MS5611, 1000);
+    // internalFlash.schedule(&Sensors::BMP280_1, 1000);
+    // internalFlash.schedule(&Sensors::BMP280_2, 1000);
+    // internalFlash.schedule(&Sensors::SHT31_1, 1000);
+    // internalFlash.schedule(&Sensors::SHT31_2, 1000);
 
-    packetgen_thread.start(packetGenerator);
+    // packetgen_thread.start(packetGenerator);
+
+    // ThisThread::sleep_for(5000);
+    LOGI("Free = %lu\n", internalFlash.freeSpace());
+    internalFlash.listFiles();
+    // copyData("/int", "/usb");
+
+    LOGI("\nSYSTEM READY\n\n");
 
     return 0;
 }

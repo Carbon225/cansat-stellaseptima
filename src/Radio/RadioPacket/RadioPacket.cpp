@@ -1,11 +1,14 @@
 #include "RadioPacket.h"
 
-double map(double unscaledNum, double minAllowed, double maxAllowed,double min, double max)
-{
-  return (maxAllowed - minAllowed) * (unscaledNum - min) / (max - min) + minAllowed;
+int scaleToBits(double x, double min, double max, double range) {
+    return (x - min) * range / (max - min);
 }
 
-packet_t RadioPacket::toBinary()
+double scaleFromBits(double x, double min, double max, double range) {
+    return x * (max - min) / range + min;
+}
+
+packet_t* RadioPacket::toBinary()
 {
-    return _data;
+    return &_data;
 }
