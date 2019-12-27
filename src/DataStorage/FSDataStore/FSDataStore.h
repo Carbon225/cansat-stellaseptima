@@ -1,7 +1,6 @@
 #ifndef _FSDATASTORE_H_
 #define _FSDATASTORE_H_
 
-#include "mbed.h"
 #include "SensorDataStore.h"
 
 class FSDataStore : public SensorDataStore {

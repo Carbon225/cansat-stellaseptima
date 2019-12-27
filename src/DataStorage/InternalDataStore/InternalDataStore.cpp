@@ -2,6 +2,9 @@
 #include "BLELogger.h"
 #include "RadioPacket.h"
 #include "Partitions.h"
+#include "PressureData.h"
+#include "SHTData.h"
+#include "GPSData.h"
 
 InternalDataStore::InternalDataStore(const char mount[]) // ex. /sd
 : FSDataStore(mount),

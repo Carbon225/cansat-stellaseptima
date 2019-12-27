@@ -1,10 +1,9 @@
 #ifndef _SHT31SENSOR_H_
 #define _SHT31SENSOR_H_
 
-#include "mbed.h"
 #include "Sht31.h"
-#include "DataTypes.h"
 #include "Sensor.h"
+#include "SHTData.h"
 
 
 class SHT31Sensor : public Sensor, private Sht31

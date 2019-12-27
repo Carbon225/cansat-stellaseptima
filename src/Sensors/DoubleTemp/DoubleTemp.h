@@ -1,8 +1,8 @@
 #ifndef _DOUBLETEMP_H_
 #define _DOUBLETEMP_H_
 
-#include "mbed.h"
 #include "Sensor.h"
+#include "SHTData.h"
 #include "Sht31.h"
 
 class DoubleTemp : public Sensor

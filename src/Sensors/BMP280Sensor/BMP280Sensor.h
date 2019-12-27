@@ -1,10 +1,9 @@
 #ifndef _BMP280SENSOR_H_
 #define _BMP280SENSOR_H_
 
-#include "mbed.h"
-#include "BMP280.h"
-#include "DataTypes.h"
 #include "Sensor.h"
+#include "BMP280.h"
+#include "PressureData.h"
 
 
 class BMP280Sensor : public Sensor, private BMP280

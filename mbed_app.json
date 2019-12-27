@@ -75,7 +75,7 @@
     ],
     "target_overrides": {
         "*": {
-            "platform.default-serial-baud-rate": 9600,
+            "platform.default-serial-baud-rate": 115200,
             "platform.stdio-baud-rate": 115200,
 
             "target.features_add": ["STORAGE"],
@@ -159,11 +159,11 @@
             "lora-rst": "P0_17",
 
             "gps-rx": "P0_23",
-            "gps-pps": "P0_22",
+            "gps-pps": "NC",
 
             "sd.SPI_CS": "P0_21",
-            "dataflash.SPI_CS": "P0_20",
-            "spif-driver.SPI_CS": "P0_20",
+            "dataflash.SPI_CS": "NC",
+            "spif-driver.SPI_CS": "NC",
 
             "motor-pin": "P0_19"
         }

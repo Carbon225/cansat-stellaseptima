@@ -38,6 +38,7 @@ void GPS::begin()
     
     _serial.attach(callback(this, &GPS::_rxIrq), Serial::RxIrq);
     // _pps.rise(callback(this, &GPS::_ppsIrq));
+    LOGI("GPS started\n");
 }
 
 void GPS::_ppsIrq()
@@ -76,7 +77,7 @@ void GPS::_processSentence(int sentenceStart)
     }
     
     sentence[i] = '\0';
-    // LOGI("%s\n", sentence);
+    LOGI("%s\n", sentence);
 
     switch (minmea_sentence_id(sentence, false)) {
         case MINMEA_SENTENCE_GLL: {

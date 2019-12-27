@@ -1,10 +1,9 @@
 #ifndef _MS5611SENSOR_H_
 #define _MS5611SENSOR_H_
 
-#include "mbed.h"
 #include "ms5611.h"
-#include "DataTypes.h"
 #include "Sensor.h"
+#include "PressureData.h"
 
 
 class MS5611Sensor : public Sensor, private ms5611

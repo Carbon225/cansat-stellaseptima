@@ -1,8 +1,6 @@
 #include "mbed.h"
 
-#include "SHT31Sensor.h"
-#include "BMP280Sensor.h"
-#include "MS5611Sensor.h"
+#include "TripleBaro.h"
 #include "DoubleTemp.h"
 #include "GPSSensor.h"
 
@@ -25,26 +23,26 @@ DigitalIn usbButton(MBED_CONF_APP_BUTTON1, PinMode::PullUp);
 
 namespace Sensors
 {
-    BMP280Sensor BMP280_1("bmp1", MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL);
-    BMP280Sensor BMP280_2("bmp2", MBED_CONF_APP_I2C2_SDA, MBED_CONF_APP_I2C2_SCL);
+    TripleBaro baro(
+        "baro",
+        MBED_CONF_APP_I2C1_SDA,
+        MBED_CONF_APP_I2C1_SCL,
+        MBED_CONF_APP_I2C2_SDA,
+        MBED_CONF_APP_I2C2_SCL
+    );
 
-    MS5611Sensor MS5611("ms5611", MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL);
+    DoubleTemp sht(
+        "sht",
+        MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL,
+        MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL
+    );
 
-    SHT31Sensor SHT31_1("sht1", MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL);
-    SHT31Sensor SHT31_2("sht2", MBED_CONF_APP_I2C2_SDA, MBED_CONF_APP_I2C2_SCL);
-
-    // DoubleTemp DoubleSHT31(
-    //     "doublesht",
-    //     MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL,
-    //     MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL
-    // );
-
-    GPSSensor gps("gps", MBED_CONF_APP_GPS_RX, NC);
+    GPSSensor gps("gps", MBED_CONF_APP_GPS_RX, MBED_CONF_APP_GPS_PPS);
 }
 
 InternalDataStore internalFlash("/int");
 
-Parachute parachute(&Sensors::MS5611, MBED_CONF_APP_MOTOR_PIN);
+Parachute parachute(&Sensors::baro, MBED_CONF_APP_MOTOR_PIN);
 
 Radio radio(
     MBED_CONF_APP_SPI1_MOSI,
@@ -58,51 +56,28 @@ Radio radio(
 void packetGenerator()
 {
     while (true) {
-        LOGI("Free = %ld\n", internalFlash.freeSpace());
-
-        PressureData *msData = (PressureData*) Sensors::MS5611.lastValue();
-        
-        SHT31Data *shtData1 = (SHT31Data*) Sensors::SHT31_1.lastValue();
-        SHT31Data *shtData2 = (SHT31Data*) Sensors::SHT31_2.lastValue();
-        
-        PressureData *bmpData1 = (PressureData*) Sensors::BMP280_1.lastValue();
-        PressureData *bmpData2 = (PressureData*) Sensors::BMP280_2.lastValue();
-
+        PressureData *pressureData = (PressureData*) Sensors::baro.lastValue();
+        SHT31Data *shtData = (SHT31Data*) Sensors::sht.lastValue();
         GPSData *gpsData = (GPSData*) Sensors::gps.lastValue();
 
-        if (shtData1->valid())
-            LOGI("s1T %.2f s1H %.1f\n", shtData1->temperature, shtData1->humidity);
+
+        if (shtData->valid())
+            LOGI("Temp %.2f Hum %.1f\n", shtData->temperature, shtData->humidity);
         else
-            LOGI("SHT1 data invalid\n");
+            LOGI("SHT data invalid\n");
 
 
-        if (shtData2->valid())
-            LOGI("s2T %.2f s2H %.1f\n", shtData2->temperature, shtData2->humidity);
+        if (pressureData->valid())
+            LOGI("Press %.2f\n", pressureData->pressure);
         else
-            LOGI("SHT2 data invalid\n");
+            LOGI("Pressure data invalid\n");
 
 
-        if (msData->valid())
-            LOGI("mP %.2f\n", msData->pressure);
-        else
-            LOGI("MS data invalid\n");
+        // if (gpsData->valid())
+        //     LOGI("lat: %.4f lng: %.4f\n", gpsData->lat, gpsData->lng);
+        // else
+        //    LOGI("GPS data invalid\n");
 
-
-        if (bmpData1->valid())
-            LOGI("b1P %.2f\n", bmpData1->pressure);
-        else
-           LOGI("BMP1 data invalid\n");
-
-
-        if (bmpData2->valid())
-            LOGI("b2P %.2f\n", bmpData2->pressure);
-        else
-           LOGI("BMP2 data invalid\n");
-
-        if (gpsData->valid())
-            LOGI("lat: %.4f lng: %.4f\n", gpsData->lat, gpsData->lng);
-        else
-           LOGI("GPS data invalid\n");
 
         switch (parachute.state()) {
             case ParachuteState::Ascending:
@@ -122,8 +97,6 @@ void packetGenerator()
             break;
         }
 
-        LOGI("Generating packet...\n");
-
         static int packetID = 0;
         static RadioPacket packet;
 
@@ -131,7 +104,7 @@ void packetGenerator()
             new(&packet) GPSPacket(packetID++, 50.069082, 19.943569);
         }
         else {
-            new(&packet) SensorPacket(packetID++, shtData1->temperature, msData->pressure);
+            new(&packet) SensorPacket(packetID++, shtData->temperature, pressureData->pressure);
         }
 
         radio.beginPacket(8);
@@ -186,9 +159,7 @@ int main(void)
 
     int txPower = 20;
     int sf = 8;
-    // long sbw = 62.5E3;
     long sbw = 31.25E3;
-    // long sbw = 125E3;
     int crd = 8;
 
     while (!radio.begin(4346E5)) {
@@ -208,32 +179,21 @@ int main(void)
         internalFlash.deinit();
         return 1;
     }
-
-    Sensors::BMP280_1.start(100);
-    Sensors::BMP280_2.start(500);
-
-    Sensors::MS5611.start(100);
-
-    parachute.start();
     
-    // // // DoubleSHT31.start(1000);
-    Sensors::SHT31_1.start(100);
-    Sensors::SHT31_2.start(100);
+    internalFlash.listFiles();
 
     // Sensors::gps.start(0);
+    Sensors::baro.start(200);
+    ThisThread::sleep_for(100);
+    Sensors::sht.start(200);
 
-    internalFlash.schedule(&Sensors::MS5611, 1000);
-    // internalFlash.schedule(&Sensors::BMP280_1, 1000);
-    // internalFlash.schedule(&Sensors::BMP280_2, 1000);
-    // internalFlash.schedule(&Sensors::SHT31_1, 1000);
-    // internalFlash.schedule(&Sensors::SHT31_2, 1000);
+    parachute.start();
 
-    // packetgen_thread.start(packetGenerator);
+    internalFlash.schedule(&Sensors::baro, 2000);
+    internalFlash.schedule(&Sensors::sht, 2000);
+    // internalFlash.schedule(&Sensors::gps, 2000);
 
-    // ThisThread::sleep_for(5000);
-    LOGI("Free = %lu\n", internalFlash.freeSpace());
-    internalFlash.listFiles();
-    // copyData("/int", "/usb");
+    packetgen_thread.start(packetGenerator);
 
     LOGI("\nSYSTEM READY\n\n");
 

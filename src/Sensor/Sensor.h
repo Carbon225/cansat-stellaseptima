@@ -2,9 +2,7 @@
 #define _SENSOR_H_
 
 #include "mbed.h"
-#include "rtos.h"
-#include "DataTypes.h"
-#include "SensorDataStore.h"
+#include "SensorData.h"
 
 class Sensor : NonCopyable<Sensor>
 {

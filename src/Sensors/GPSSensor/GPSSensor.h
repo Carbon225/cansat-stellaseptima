@@ -1,9 +1,8 @@
 #ifndef _GPSSENSOR_H_
 #define _GPSSENSOR_H_
 
-#include "mbed.h"
-#include "DataTypes.h"
 #include "Sensor.h"
+#include "GPSData.h"
 #include "GPS.h"
 
 class GPSSensor : public Sensor, private GPS

@@ -3,7 +3,7 @@
 
 TripleBaro::TripleBaro(const char name[], PinName sda1, PinName scl1, PinName sda2, PinName scl2)
 : Sensor(name), _last_value(name),
-  _ms1(sda1, scl1), _bmp1(sda1, scl1), _bmp2(sda2, scl2)
+  _ms1(sda1, scl1, ms5611::CSBpin_1), _bmp1(sda1, scl1), _bmp2(sda2, scl2)
 {
 
 }
@@ -21,8 +21,8 @@ SensorData* TripleBaro::lastValue()
 mbed_error_status_t TripleBaro::setup()
 {
     _ms1.cmd_reset();
-    _bmp1.cmd_reset();
-    _bmp2.cmd_reset();
+    _bmp1.initialize();
+    _bmp2.initialize();
 
     LOGI("Triple baro started\n");
     return 0;
@@ -33,11 +33,11 @@ mbed_error_status_t TripleBaro::read()
     _ms1.calcTemp();
     double p1 = _ms1.calcPressure();
     
-    _bmp1.calcTemp();
-    double p2 = _bmp1.calcPressure();
+    _bmp1.getTemperature();
+    double p2 = _bmp1.getPressure();
     
-    _bmp2.calcTemp();
-    double p3 = _bmp2.calcPressure();
+    _bmp2.getTemperature();
+    double p3 = _bmp2.getPressure();
 
     bool data1Valid = PressureData(p1).valid();
     bool data2Valid = PressureData(p2).valid();

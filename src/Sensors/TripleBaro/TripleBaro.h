@@ -1,9 +1,10 @@
 #ifndef _TRIPLEBARO_H_
 #define _TRIPLEBARO_H_
 
-#include "mbed.h"
 #include "Sensor.h"
+#include "PressureData.h"
 #include "ms5611.h"
+#include "BMP280.h"
 
 #define PRESS_DIVERGENCE 2.f
 
@@ -25,7 +26,7 @@ private:
     PressureData _last_value;
 
     ms5611 _ms1;
-    ms5611 _bmp1, _bmp2;
+    BMP280 _bmp1, _bmp2;
 };
 
 #endif

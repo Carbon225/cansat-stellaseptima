@@ -1,5 +1,8 @@
 #include "FSDataStore.h"
 #include "BLELogger.h"
+#include "PressureData.h"
+#include "SHTData.h"
+#include "GPSData.h"
 
 static int getNewFlightNumber(const char path[])
 {

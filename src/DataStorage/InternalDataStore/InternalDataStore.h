@@ -1,7 +1,6 @@
 #ifndef _INTERNALDATASTORE_H_
 #define _INTERNALDATASTORE_H_
 
-#include "mbed.h"
 #include "FSDataStore.h"
 #include "FlashIAPBlockDevice.h"
 #include "LittleFileSystem.h"

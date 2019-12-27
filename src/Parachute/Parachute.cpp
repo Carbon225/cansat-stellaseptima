@@ -1,4 +1,5 @@
 #include "Parachute.h"
+#include "PressureData.h"
 
 #define AVG_SIZE 8
 #define MOTOR_ON true
