@@ -2,7 +2,7 @@
 #include "BLELogger.h"
 #include "minmea.h"
 
-Thread GPS::_thread(osPriorityNormal, 256, NULL, "nmea");
+Thread GPS::_thread(osPriorityNormal, 512, NULL, "nmea");
 EventQueue GPS::_evQueue(16 * EVENTS_EVENT_SIZE);
 
 GPS::GPS(PinName rx, PinName pps)
@@ -38,7 +38,6 @@ void GPS::begin()
     
     _serial.attach(callback(this, &GPS::_rxIrq), Serial::RxIrq);
     // _pps.rise(callback(this, &GPS::_ppsIrq));
-    LOGI("GPS started\n");
 }
 
 void GPS::_ppsIrq()
@@ -77,17 +76,17 @@ void GPS::_processSentence(int sentenceStart)
     }
     
     sentence[i] = '\0';
-    LOGI("%s\n", sentence);
+    // LOGI("%s\n", sentence);
 
     switch (minmea_sentence_id(sentence, false)) {
         case MINMEA_SENTENCE_GLL: {
             minmea_sentence_gll frame;
             if (minmea_parse_gll(&frame, sentence)) {
                 _lastGLL = frame;
-                LOGI("lat: %d/%d, lng: %d/%d\n",
-                    frame.latitude.value, frame.latitude.scale,
-                    frame.longitude.value, frame.longitude.scale
-                );
+                // LOGI("lat: %d/%d, lng: %d/%d\n",
+                //     frame.latitude.value, frame.latitude.scale,
+                //     frame.longitude.value, frame.longitude.scale
+                // );
             }
             else {
                 LOGI("GLL sentence invalid\n");
@@ -99,10 +98,10 @@ void GPS::_processSentence(int sentenceStart)
             minmea_sentence_zda frame;
             if (minmea_parse_zda(&frame, sentence)) {
                 _lastZDA = frame;
-                LOGI("Time: %d:%d\n",
-                    frame.time.minutes,
-                    frame.time.seconds
-                );
+                // LOGI("Time: %d:%d\n",
+                //     frame.time.minutes,
+                //     frame.time.seconds
+                // );
             }
             else {
                 LOGI("ZDA sentence invalid\n");

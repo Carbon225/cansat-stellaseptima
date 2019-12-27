@@ -73,10 +73,10 @@ void packetGenerator()
             LOGI("Pressure data invalid\n");
 
 
-        // if (gpsData->valid())
-        //     LOGI("lat: %.4f lng: %.4f\n", gpsData->lat, gpsData->lng);
-        // else
-        //    LOGI("GPS data invalid\n");
+        if (gpsData->valid())
+            LOGI("lat: %.4f lng: %.4f\n", gpsData->lat, gpsData->lng);
+        else
+           LOGI("GPS data invalid\n");
 
 
         switch (parachute.state()) {
@@ -189,8 +189,8 @@ int main(void)
 
     parachute.start();
 
-    internalFlash.schedule(&Sensors::baro, 2000);
-    internalFlash.schedule(&Sensors::sht, 2000);
+    // internalFlash.schedule(&Sensors::baro, 2000);
+    // internalFlash.schedule(&Sensors::sht, 2000);
     // internalFlash.schedule(&Sensors::gps, 2000);
 
     packetgen_thread.start(packetGenerator);
