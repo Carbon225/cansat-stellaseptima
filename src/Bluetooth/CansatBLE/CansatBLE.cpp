@@ -31,13 +31,16 @@ BLE& CansatBLE::_ble(BLE::Instance());
 CansatBLE::CansatBLE()
 :   _adv_data_builder(_adv_buffer),
     _uartService(NULL),
-    _sensorService(NULL)
+    _sensorService(NULL),
+    _parachuteService(NULL)
 {
 }
 
 CansatBLE::~CansatBLE()
 {
     delete _uartService;
+    delete _sensorService;
+    delete _parachuteService;
 }
 
 void CansatBLE::start()
@@ -49,10 +52,6 @@ void CansatBLE::start()
 
 UARTService* CansatBLE::uart()
 {
-    if (!_uartService) {
-        
-    }
-
     return _uartService;
 }
 
@@ -70,6 +69,7 @@ void CansatBLE::on_init_complete(BLE::InitializationCompleteCallbackContext *par
 
     _uartService = new UARTService(_ble);
     _sensorService = new SensorService(_ble);
+    _parachuteService = new ParachuteService(_ble, 900.f, 50.f);
 
     _ble.gattServer().onDataWritten(this, &CansatBLE::on_data_written);
 
@@ -85,12 +85,13 @@ void CansatBLE::start_advertising()
 
     static const UUID services[] = {
         UARTServiceUUID,
-        SensorService::SERVICE_UUID
+        SensorService::SERVICE_UUID,
+        ParachuteService::SERVICE_UUID
     };
 
     _adv_data_builder.setFlags();
     _adv_data_builder.setAppearance(ble::adv_data_appearance_t::GENERIC_COMPUTER);
-    _adv_data_builder.setLocalServiceList(mbed::make_Span(services, 2));
+    _adv_data_builder.setLocalServiceList(mbed::make_Span(services, 3));
     _adv_data_builder.setName(DEVICE_NAME);
 
     ble_error_t error = _ble.gap().setAdvertisingParameters(
@@ -123,7 +124,8 @@ void CansatBLE::start_advertising()
 
 void CansatBLE::on_data_written(const GattWriteCallbackParams *params)
 {
-    // if ((params->handle == _led_service->getValueHandle()) && (params->len == 1)) {
+    _parachuteService->onData(params);
+    // if ((params->handle == _parachuteService->getValueHandle()) && (params->len == 1)) {
     //     if (_actuated_led.is_connected())
     //         _actuated_led = *(params->data);
     // }
