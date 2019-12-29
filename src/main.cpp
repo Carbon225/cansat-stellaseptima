@@ -56,9 +56,20 @@ Radio radio(
 void packetGenerator()
 {
     while (true) {
-        PressureData *pressureData = (PressureData*) Sensors::baro.lastValue();
-        SHT31Data *shtData = (SHT31Data*) Sensors::sht.lastValue();
+        TMRData *pressureData = (TMRData*) Sensors::baro.lastValue();
+        DoubleTempData *shtData = (DoubleTempData*) Sensors::sht.lastValue();
         GPSData *gpsData = (GPSData*) Sensors::gps.lastValue();
+
+        if (CansatBLE::Instance().sensors()) {
+            CansatBLE::Instance().sensors()->setMS(pressureData->pressure1);
+            CansatBLE::Instance().sensors()->setBMP1(pressureData->pressure2);
+            CansatBLE::Instance().sensors()->setBMP2(pressureData->pressure3);
+
+            CansatBLE::Instance().sensors()->setSHT1(shtData->temp1, shtData->hum1);
+            CansatBLE::Instance().sensors()->setSHT2(shtData->temp2, shtData->hum2);
+
+            CansatBLE::Instance().sensors()->setGPS(gpsData->lat, gpsData->lng);
+        }
 
 
         if (shtData->valid())

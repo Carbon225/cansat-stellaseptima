@@ -32,6 +32,11 @@ mbed_error_status_t DoubleTemp::read()
     double temp2 = _sht2.readTemperature();
     double hum2 = _sht2.readHumidity();
 
+    _last_value.temp1 = temp1;
+    _last_value.temp2 = temp2;
+    _last_value.hum1 = hum1;
+    _last_value.hum2 = hum2;
+
     bool data1Valid = SHT31Data(temp1, hum1).valid();
     bool data2Valid = SHT31Data(temp2, hum2).valid();
 

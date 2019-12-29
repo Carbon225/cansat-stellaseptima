@@ -2,7 +2,7 @@
 #define _TRIPLEBARO_H_
 
 #include "Sensor.h"
-#include "PressureData.h"
+#include "TMRData.h"
 #include "ms5611.h"
 #include "BMP280.h"
 
@@ -23,7 +23,7 @@ protected:
 private:
     static double calculateTMR(double v1, double v2, double v3, double divergence);
 
-    PressureData _last_value;
+    TMRData _last_value;
 
     ms5611 _ms1;
     BMP280 _bmp1, _bmp2;
