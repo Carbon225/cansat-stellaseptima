@@ -138,34 +138,34 @@
             "flashiap-block-device.base-address": "0x7A000",
             "flashiap-block-device.size": "0x86000‬",
 
-            "debug-tx": "P0_15",
+            "debug-tx": "NC",
 
-            "i2c1-sda": "P0_28",
-            "i2c1-scl": "P0_29",
-            "i2c2-sda": "P0_4",
-            "i2c2-scl": "P0_5",
+            "i2c1-sda": "P0_2",
+            "i2c1-scl": "P0_3",
+            "i2c2-sda": "P0_15",
+            "i2c2-scl": "P0_19",
 
             "button1": "P0_13",
             "led1": "P0_7",
             "led2": "NC",
             "led3": "NC",
 
-            "spi1-mosi": "P0_3",
-            "spi1-miso": "P0_31",
-            "spi1-clk": "P0_30",
+            "spi1-mosi": "P0_5",
+            "spi1-miso": "P0_4",
+            "spi1-clk": "P0_28",
             
-            "lora-cs": "P0_2",
+            "lora-cs": "P0_29",
             "lora-dio0": "NC",
             "lora-rst": "P0_17",
 
-            "gps-rx": "P0_23",
+            "gps-rx": "P0_20",
             "gps-pps": "NC",
 
-            "sd.SPI_CS": "P0_21",
-            "dataflash.SPI_CS": "NC",
+            "sd.SPI_CS": "P0_31",
+            "dataflash.SPI_CS": "P0_30",
             "spif-driver.SPI_CS": "NC",
 
-            "motor-pin": "P0_19"
+            "motor-pin": "P0_22"
         }
     }
 }
