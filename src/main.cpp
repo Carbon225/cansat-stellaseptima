@@ -72,22 +72,33 @@ void packetGenerator()
         }
 
 
-        if (shtData->valid())
+        if (shtData->valid()) {
+            LOGI("Temp1 %.2f Hum1 %.1f\n", shtData->temp1, shtData->hum1);
+            LOGI("Temp2 %.2f Hum2 %.1f\n", shtData->temp2, shtData->temp2);
             LOGI("Temp %.2f Hum %.1f\n", shtData->temperature, shtData->humidity);
-        else
+        }
+        else {
             LOGI("SHT data invalid\n");
+        }
 
 
-        if (pressureData->valid())
+        if (pressureData->valid()) {
+            LOGI("Press1 %.2f\n", pressureData->pressure1);
+            LOGI("Press2 %.2f\n", pressureData->pressure2);
+            LOGI("Press3 %.2f\n", pressureData->pressure3);
             LOGI("Press %.2f\n", pressureData->pressure);
-        else
+        }
+        else {
             LOGI("Pressure data invalid\n");
+        }
 
 
-        if (gpsData->valid())
+        if (gpsData->valid()) {
             LOGI("lat: %.4f lng: %.4f\n", gpsData->lat, gpsData->lng);
-        else
+        }
+        else {
            LOGI("GPS data invalid\n");
+        }
 
 
         switch (parachute.state()) {
@@ -109,24 +120,22 @@ void packetGenerator()
         }
 
         static int packetID = 0;
-        static RadioPacket packet;
+        RadioPacket *packet;
 
         if ((packetID % 4) == 0) {
-            new(&packet) GPSPacket(packetID++, 50.069082, 19.943569);
+            packet = new GPSPacket(packetID++, gpsData->lat, gpsData->lng);
         }
         else {
-            new(&packet) SensorPacket(packetID++, shtData->temperature, pressureData->pressure);
+            packet = new SensorPacket(packetID++, shtData->temperature, pressureData->pressure);
         }
 
-        radio.beginPacket(8);
-        radio.write((uint8_t*)packet.toBinary(), 4);
-        radio.write(0xff);
-        radio.write(0xff);
-        radio.write(0xff);
-        radio.write(0xff);
+        radio.beginPacket(4);
+        radio.write((uint8_t*)packet->toBinary(), 4);
         radio.endPacket(true);
 
-        LOGI("%#x\n", *packet.toBinary());
+        LOGI("%#x\n", *packet->toBinary());
+
+        delete packet;
 
         // LOGI("---STATS---\n");
 
