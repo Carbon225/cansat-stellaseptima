@@ -39,6 +39,10 @@ mbed_error_status_t TripleBaro::read()
     _bmp2.getTemperature();
     double p3 = _bmp2.getPressure();
 
+    _last_value.pressure1 = p1;
+    _last_value.pressure2 = p2;
+    _last_value.pressure3 = p3;
+
     bool data1Valid = PressureData(p1).valid();
     bool data2Valid = PressureData(p2).valid();
     bool data3Valid = PressureData(p3).valid();

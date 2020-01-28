@@ -38,7 +38,7 @@ int InternalDataStore::_encode(SensorData *data, uint8_t *out)
         case DataTypes::SHT31_dt:
         if (out) {
             int temp = scaleToBits(((SHT31Data*)data)->temperature, -10, 40, 511);
-            int hum = scaleToBits(((SHT31Data*)data)->humidity, 0, 100, 128);
+            int hum = scaleToBits(((SHT31Data*)data)->humidity, 0, 100, 127);
 
             int data = temp;
             data |= hum << 9;

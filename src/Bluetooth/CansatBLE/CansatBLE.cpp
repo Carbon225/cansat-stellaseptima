@@ -1,6 +1,7 @@
 #include "CansatBLE.h"
 #include "BLELogger.h"
 
+const static char DEVICE_NAME[] = MBED_CONF_APP_BLE_NAME;
 static CansatBLE BLEController;
 
 void CansatBLE::_schedule_ble_events(BLE::OnEventsToProcessCallbackContext *context)
@@ -10,7 +11,6 @@ void CansatBLE::_schedule_ble_events(BLE::OnEventsToProcessCallbackContext *cont
 
 void CansatBLE::init()
 {
-    // TODO should (probably) check if thread is already running
     if (_ev_thread.get_state() == Thread::Deleted) {
         _ev_thread.start(callback(&_event_queue, &EventQueue::dispatch_forever));
     }
@@ -29,17 +29,18 @@ Thread CansatBLE::_ev_thread(osPriorityBelowNormal, 1024, NULL, "ble");
 BLE& CansatBLE::_ble(BLE::Instance());
 
 CansatBLE::CansatBLE()
-:   _alive_led(MBED_CONF_APP_LED2),
-    _actuated_led(MBED_CONF_APP_LED3),
-    _adv_data_builder(_adv_buffer),
-    _led_service(NULL),
-    _uart_service(NULL)
+:   _adv_data_builder(_adv_buffer),
+    _uartService(NULL),
+    _sensorService(NULL),
+    _parachuteService(NULL)
 {
 }
 
 CansatBLE::~CansatBLE()
 {
-    delete _led_service;
+    delete _uartService;
+    delete _sensorService;
+    delete _parachuteService;
 }
 
 void CansatBLE::start()
@@ -47,17 +48,16 @@ void CansatBLE::start()
     _ble.gap().setEventHandler(this);
 
     _ble.init(this, &CansatBLE::on_init_complete);
-
-    _event_queue.call_every(500, this, &CansatBLE::blink);
 }
 
 UARTService* CansatBLE::uart()
 {
-    if (!_uart_service) {
-        
-    }
+    return _uartService;
+}
 
-    return _uart_service;
+SensorService* CansatBLE::sensors()
+{
+    return _sensorService;
 }
 
 void CansatBLE::on_init_complete(BLE::InitializationCompleteCallbackContext *params)
@@ -67,33 +67,32 @@ void CansatBLE::on_init_complete(BLE::InitializationCompleteCallbackContext *par
         return;
     }
 
-    _led_service = new LEDService(_ble, false);
-    _uart_service = new UARTService(_ble);
+    _uartService = new UARTService(_ble);
+    _sensorService = new SensorService(_ble);
+    _parachuteService = new ParachuteService(_ble, 900.f, 50.f);
 
     _ble.gattServer().onDataWritten(this, &CansatBLE::on_data_written);
-
-    // print_mac_address();
 
     start_advertising();
 }
 
 void CansatBLE::start_advertising()
 {
-    /* Create advertising parameters and payload */
-
     ble::AdvertisingParameters adv_parameters(
         ble::advertising_type_t::CONNECTABLE_UNDIRECTED,
         ble::adv_interval_t(ble::millisecond_t(1000))
     );
 
-    static const UUID services[2] = {
-        LEDService::LED_SERVICE_UUID,
-        UARTServiceUUID
+    static const UUID services[] = {
+        UARTServiceUUID,
+        SensorService::SERVICE_UUID,
+        ParachuteService::SERVICE_UUID
     };
 
     _adv_data_builder.setFlags();
-    _adv_data_builder.setLocalServiceList(mbed::make_Span(services, 2));
-    _adv_data_builder.setName(MBED_CONF_APP_BLE_NAME);
+    _adv_data_builder.setAppearance(ble::adv_data_appearance_t::GENERIC_COMPUTER);
+    _adv_data_builder.setLocalServiceList(mbed::make_Span(services, 3));
+    _adv_data_builder.setName(DEVICE_NAME);
 
     ble_error_t error = _ble.gap().setAdvertisingParameters(
         ble::LEGACY_ADVERTISING_HANDLE,
@@ -125,16 +124,11 @@ void CansatBLE::start_advertising()
 
 void CansatBLE::on_data_written(const GattWriteCallbackParams *params)
 {
-    if ((params->handle == _led_service->getValueHandle()) && (params->len == 1)) {
-        if (_actuated_led.is_connected())
-            _actuated_led = *(params->data);
-    }
-}
-
-void CansatBLE::blink()
-{
-    if (_alive_led.is_connected())
-        _alive_led = !_alive_led;
+    _parachuteService->onData(params);
+    // if ((params->handle == _parachuteService->getValueHandle()) && (params->len == 1)) {
+    //     if (_actuated_led.is_connected())
+    //         _actuated_led = *(params->data);
+    // }
 }
 
 void CansatBLE::onDisconnectionComplete(const ble::DisconnectionCompleteEvent&)

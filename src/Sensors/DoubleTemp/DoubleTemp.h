@@ -2,7 +2,7 @@
 #define _DOUBLETEMP_H_
 
 #include "Sensor.h"
-#include "SHTData.h"
+#include "DoubleTempData.h"
 #include "Sht31.h"
 
 class DoubleTemp : public Sensor
@@ -19,7 +19,7 @@ protected:
 
 private:
     Sht31 _sht1, _sht2;
-    SHT31Data _last_value;
+    DoubleTempData _last_value;
 };
 
 #endif
