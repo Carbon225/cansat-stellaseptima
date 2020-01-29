@@ -45,7 +45,7 @@ mbed_error_status_t ConfigManager::init()
     }
     LOGI("Config partition OK\n");
 
-    return readConfig();
+    return MBED_SUCCESS;
 }
 
 mbed_error_status_t ConfigManager::readConfig()
@@ -54,6 +54,7 @@ mbed_error_status_t ConfigManager::readConfig()
 
     FILE *f = fopen("/config/config.conf", "rb");
     if (!f) {
+        LOGI("Creating default config\n");
         return writeConfig();
     }
 
@@ -72,11 +73,11 @@ mbed_error_status_t ConfigManager::readConfig()
 
 mbed_error_status_t ConfigManager::writeConfig()
 {
-    LOGI("Writing config\n");
+    // LOGI("Writing config\n");
 
     FILE *f = fopen("/config/config.conf", "wb");
     if (!f) {
-        LOGI("Error opening file\n");
+        // LOGI("Error opening file\n");
         return MBED_ERROR_CREATE_FAILED;
     }
 

@@ -38,11 +38,14 @@ void ConfigService::onData(const GattWriteCallbackParams *params)
     if (params->handle == _loraFreq.getValueHandle()) {
         // LOGI("SET FREQ\n");
         ConfigManager::Instance().setLoraFreq(*(long*)params->data);
-        ConfigManager::Instance().writeConfig();
+        mbed_event_queue()->call(callback(&ConfigManager::Instance(), &ConfigManager::writeConfig));
+        mbed_event_queue()->call(&NVIC_SystemReset);
+        // ConfigManager::Instance().writeConfig();
     }
     else if (params->handle == _groundPressure.getValueHandle()) {
         // LOGI("SET GROUND PRESSURE\n");
         ConfigManager::Instance().setGroundPressure(*(double*)params->data);
-        ConfigManager::Instance().writeConfig();
+        mbed_event_queue()->call(callback(&ConfigManager::Instance(), &ConfigManager::writeConfig));
+        // ConfigManager::Instance().writeConfig();
     }
 }

@@ -181,7 +181,11 @@ int main(void)
 
     LOGI("Reading configuration\n");
     if (ConfigManager::Instance().init() != MBED_SUCCESS) {
-        LOGI("Error reading configuration\n");
+        LOGI("Error initializing configuration\n");
+    }
+
+    if (ConfigManager::Instance().readConfig() != MBED_SUCCESS) {
+        LOGI("Reading config failed\n");
     }
 
     const long freq = ConfigManager::Instance().getLoraFreq();
