@@ -8,6 +8,7 @@
 #include "CopyData.h"
 #include "Partitions.h"
 #include "USBDrive.h"
+#include "ConfigManager.h"
 
 #include "Parachute.h"
 #include "Radio.h"
@@ -175,19 +176,26 @@ int main(void)
     
     LOGI("Starting...\n");
 
+    LOGI("Starting BLE\n");
     CansatBLE::init();
 
-    int txPower = 20;
-    int sf = 8;
-    long sbw = 31.25E3;
-    int crd = 8;
+    LOGI("Reading configuration\n");
+    if (ConfigManager::Instance().init() != MBED_SUCCESS) {
+        LOGI("Error reading configuration\n");
+    }
 
-    while (!radio.begin(4346E5)) {
+    const long freq = ConfigManager::Instance().getLoraFreq();
+    const int txPower = 20;
+    const int sf = 8;
+    const long sbw = 31.25E3;
+    const int crd = 8;
+
+    while (!radio.begin(freq)) {
         LOGI("Starting Lora failed\n");
         ThisThread::sleep_for(500);
     }
 
-    radio.setTxPower(txPower);
+    // radio.setTxPower(txPower);
     radio.setSpreadingFactor(sf);
     radio.setSignalBandwidth(sbw);
     radio.setCodingRate4(crd);

@@ -7,6 +7,7 @@
 #include "UARTService.h"
 #include "SensorService.h"
 #include "ParachuteService.h"
+#include "ConfigService.h"
 
 class CansatBLE : ble::Gap::EventHandler, NonCopyable<CansatBLE> {
 public:
@@ -19,6 +20,7 @@ public:
     void start();
     UARTService* uart();
     SensorService* sensors();
+    ConfigService* configService();
 
 private:
     void on_init_complete(BLE::InitializationCompleteCallbackContext *params);
@@ -29,6 +31,7 @@ private:
     UARTService *_uartService;
     SensorService *_sensorService;
     ParachuteService *_parachuteService;
+    ConfigService *_configService;
  
     uint8_t _adv_buffer[ble::LEGACY_ADVERTISING_MAX_SIZE];
     ble::AdvertisingDataBuilder _adv_data_builder;

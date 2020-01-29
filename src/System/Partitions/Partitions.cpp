@@ -33,8 +33,8 @@ void Partitions::initialize()
     LOGI("Initializing partitions...\n");
 
     flashBD.init();
-    MBRBlockDevice::partition(&flashBD, 1, 0x83, 0x0, 0x1000);
-    MBRBlockDevice::partition(&flashBD, 2, 0x83, 0x1000);
+    MBRBlockDevice::partition(&flashBD, 1, 0x83, 0x0, 0x8000);
+    MBRBlockDevice::partition(&flashBD, 2, 0x83, 0x8000);
 
     LOGI("Complete\n");
 }
