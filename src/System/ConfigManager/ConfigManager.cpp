@@ -65,8 +65,8 @@ mbed_error_status_t ConfigManager::readConfig()
     _loraFreq = *(long*)data;
     _groundPressure = *(double*)(data + sizeof(long));
 
-    CansatBLE::Instance().configService()->setLoraFreq(_loraFreq);
-    CansatBLE::Instance().configService()->setGroundPressure(_groundPressure);
+    // CansatBLE::Instance().configService()->setLoraFreq(_loraFreq);
+    // CansatBLE::Instance().configService()->setGroundPressure(_groundPressure);
 
     return MBED_SUCCESS;
 }
