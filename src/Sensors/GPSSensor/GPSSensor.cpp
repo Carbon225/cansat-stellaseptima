@@ -14,8 +14,9 @@ GPSSensor::~GPSSensor()
 
 SensorData* GPSSensor::lastValue()
 {
-    _last_value.lat = (double) GPS::GLL().latitude.value / (double) GPS::GLL().latitude.scale;
-    _last_value.lng = (double) GPS::GLL().longitude.value / (double) GPS::GLL().longitude.scale;
+    minmea_sentence_gll gll = GPS::GLL();
+    _last_value.lat = minmea_tocoord(&gll.latitude);
+    _last_value.lng = minmea_tocoord(&gll.longitude);
     return &_last_value;
 }
 
