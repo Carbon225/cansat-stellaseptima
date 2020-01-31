@@ -1,10 +1,12 @@
 #include "BLELogger.h"
-#include "USBSerial.h"
+// #include "USBSerial.h"
+#include "jlink_rtt.h"
 
 #define BLE_UART_BUF_SIZE 20
 
+static Jlink_rtt pc;
 // static USBSerial pc;
-Serial pc(P0_11, NC, NULL, 115200);
+// Serial pc(P0_11, NC, NULL, 115200);
 
 FileHandle* mbed::mbed_override_console(int) {
     return &pc;
