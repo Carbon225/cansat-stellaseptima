@@ -18,7 +18,7 @@ void disableUSBSerial()
     // pc.deinit();
 }
 
-void LOGI(const char *fmt, ...)
+void LOGB(const char *fmt, ...)
 {
     static Mutex serialMutex;
 

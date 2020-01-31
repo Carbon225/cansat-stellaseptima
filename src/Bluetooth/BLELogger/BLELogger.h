@@ -6,6 +6,7 @@
 
 void disableUSBSerial();
 
-void LOGI(const char *fmt, ...);
+#define LOGI(f_, ...) printf((f_), ##__VA_ARGS__)
+void LOGB(const char *fmt, ...);
 
 #endif
