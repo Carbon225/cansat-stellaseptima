@@ -7,6 +7,8 @@ class GPSPacket : public RadioPacket
 {
 public:
     GPSPacket(int id, double lat, double lng);
+
+    static packet_t encode(int id, double lat, double lng);
 };
 
 #endif

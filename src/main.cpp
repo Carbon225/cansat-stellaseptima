@@ -76,10 +76,10 @@ void packetGenerator()
         if (shtData->valid()) {
             LOGI("Temp1 %.2f Hum1 %.1f\n", shtData->temp1, shtData->hum1);
             LOGI("Temp2 %.2f Hum2 %.1f\n", shtData->temp2, shtData->temp2);
-            LOGI("Temp %.2f Hum %.1f\n", shtData->temperature, shtData->humidity);
+            LOGB("Temp %.2f Hum %.1f\n", shtData->temperature, shtData->humidity);
         }
         else {
-            LOGI("SHT data invalid\n");
+            LOGB("SHT data invalid\n");
         }
 
 
@@ -87,77 +87,79 @@ void packetGenerator()
             LOGI("Press1 %.2f\n", pressureData->pressure1);
             LOGI("Press2 %.2f\n", pressureData->pressure2);
             LOGI("Press3 %.2f\n", pressureData->pressure3);
-            LOGI("Press %.2f\n", pressureData->pressure);
+            LOGB("Press %.2f\n", pressureData->pressure);
         }
         else {
-            LOGI("Pressure data invalid\n");
+            LOGB("Pressure data invalid\n");
         }
 
 
         if (gpsData->valid()) {
-            LOGI("lat: %.4f lng: %.4f\n", gpsData->lat, gpsData->lng);
+            LOGB("lat: %.4f lng: %.4f\n", gpsData->lat, gpsData->lng);
         }
         else {
-           LOGI("GPS data invalid\n");
+           LOGB("GPS data invalid\n");
         }
 
 
         switch (parachute.state()) {
             case ParachuteState::Ascending:
-            LOGI("Parachute mode: Ascending\n");
+            LOGB("Parachute mode: Ascending\n");
             break;
 
             case ParachuteState::Descending:
-            LOGI("Parachute mode: Descending\n");
+            LOGB("Parachute mode: Descending\n");
             break;
 
             case ParachuteState::Opening:
-            LOGI("Parachute mode: Opening\n");
+            LOGB("Parachute mode: Opening\n");
             break;
 
             case ParachuteState::Done:
-            LOGI("Parachute mode: Done\n");
+            LOGB("Parachute mode: Done\n");
             break;
         }
 
         static int packetID = 0;
-        RadioPacket *packet;
+        packet_t packet;
 
         if ((packetID % 4) == 0) {
-            packet = new GPSPacket(packetID++, gpsData->lat, gpsData->lng);
+            // packet = new GPSPacket(packetID++, gpsData->lat, gpsData->lng);
+            packet = GPSPacket::encode(packetID++, gpsData->lat, gpsData->lng);
         }
         else {
-            packet = new SensorPacket(packetID++, shtData->temperature, pressureData->pressure);
+            // packet = new SensorPacket(packetID++, shtData->temperature, pressureData->pressure);
+            packet = SensorPacket::encode(packetID++, shtData->temperature, pressureData->pressure, shtData->humidity);
         }
 
         radio.beginPacket(4);
-        radio.write((uint8_t*)packet->toBinary(), 4);
+        radio.write((uint8_t*)&packet, 4);
         radio.endPacket(true);
 
-        LOGI("%#x\n", *packet->toBinary());
+        LOGI("%#x\n", packet);
 
-        delete packet;
+        // delete packet;
 
-        // LOGI("---STATS---\n");
+        LOGI("---STATS---\n");
 
-        // mbed_stats_heap_t heap_stats;
-        // mbed_stats_heap_get(&heap_stats);
-        // LOGI("Reserved heap: %u\n", heap_stats.reserved_size);
-        // LOGI("Current heap: %u\n", heap_stats.current_size);
-        // LOGI("Max heap size: %u\n", heap_stats.max_size);
+        mbed_stats_heap_t heap_stats;
+        mbed_stats_heap_get(&heap_stats);
+        LOGI("Reserved heap: %u\n", heap_stats.reserved_size);
+        LOGI("Current heap: %u\n", heap_stats.current_size);
+        LOGI("Max heap size: %u\n", heap_stats.max_size);
 
-        // int cnt = osThreadGetCount();
-        // mbed_stats_stack_t *stats = (mbed_stats_stack_t*) malloc(cnt * sizeof(mbed_stats_stack_t));
+        int cnt = osThreadGetCount();
+        mbed_stats_stack_t *stats = (mbed_stats_stack_t*) malloc(cnt * sizeof(mbed_stats_stack_t));
 
-        // cnt = mbed_stats_stack_get_each(stats, cnt);
-        // for (int i = 0; i < cnt; i++) {
-        //     LOGI("Thread: 0x%X, Stack size: %u, Max stack: %u\n", 
-        //             stats[i].thread_id, stats[i].reserved_size, stats[i].max_size);
-        // }
+        cnt = mbed_stats_stack_get_each(stats, cnt);
+        for (int i = 0; i < cnt; i++) {
+            LOGI("Thread: 0x%X, Stack size: %u, Max stack: %u\n", 
+                    stats[i].thread_id, stats[i].reserved_size, stats[i].max_size);
+        }
 
-        // free(stats);
+        free(stats);
 
-        // LOGI("---STATS---\n");
+        LOGI("---STATS---\n");
 
         ThisThread::sleep_for(1000);
     }
@@ -169,7 +171,7 @@ int main(void)
     Partitions::initialize();
     
     if (usbButton == 0) {
-        USBDrive::prepareFS();
+        // USBDrive::prepareFS();
         disableUSBSerial();
         USBDrive::connect();
     }
@@ -214,7 +216,7 @@ int main(void)
     
     internalFlash.listFiles();
 
-    // Sensors::gps.start(0);
+    Sensors::gps.start(0);
     Sensors::baro.start(200);
     ThisThread::sleep_for(100);
     Sensors::sht.start(200);

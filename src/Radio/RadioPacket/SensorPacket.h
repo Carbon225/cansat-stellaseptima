@@ -7,6 +7,8 @@ class SensorPacket : public RadioPacket
 {
 public:
     SensorPacket(int id, double temp, double press);
+
+    static packet_t encode(int id, double temp, double press, double hum);
 };
 
 #endif
