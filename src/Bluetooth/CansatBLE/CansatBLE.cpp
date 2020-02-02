@@ -24,8 +24,8 @@ CansatBLE& CansatBLE::Instance()
     return BLEController;
 }
 
-EventQueue CansatBLE::_event_queue(16 * EVENTS_EVENT_SIZE);
-Thread CansatBLE::_ev_thread(osPriorityBelowNormal, 1024, NULL, "ble");
+EventQueue CansatBLE::_event_queue(32 * EVENTS_EVENT_SIZE);
+Thread CansatBLE::_ev_thread(osPriorityNormal, 1024, NULL, "ble");
 BLE& CansatBLE::_ble(BLE::Instance());
 
 CansatBLE::CansatBLE()
@@ -76,7 +76,7 @@ void CansatBLE::on_init_complete(BLE::InitializationCompleteCallbackContext *par
 
     _uartService = new UARTService(_ble);
     _sensorService = new SensorService(_ble);
-    _parachuteService = new ParachuteService(_ble, 900.f, 50.f);
+    _parachuteService = new ParachuteService(_ble);
     _configService = new ConfigService(_ble);
 
     _ble.gattServer().onDataWritten(this, &CansatBLE::on_data_written);
@@ -135,10 +135,6 @@ void CansatBLE::on_data_written(const GattWriteCallbackParams *params)
 {
     _parachuteService->onData(params);
     _configService->onData(params);
-    // if ((params->handle == _parachuteService->getValueHandle()) && (params->len == 1)) {
-    //     if (_actuated_led.is_connected())
-    //         _actuated_led = *(params->data);
-    // }
 }
 
 void CansatBLE::onDisconnectionComplete(const ble::DisconnectionCompleteEvent&)
