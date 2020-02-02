@@ -71,7 +71,10 @@ int FSDataStore::_encode(SensorData *data, uint8_t *out)
         return sizeof(SHT31Data::temperature) + sizeof(SHT31Data::humidity);
 
         case DataTypes::GPS_dt:
-        
+        if (out) {
+            memcpy(out, &((GPSData*)data)->lat, sizeof(GPSData::lat));
+            memcpy(out + sizeof(GPSData::lat), &((GPSData*)data)->lng, sizeof(GPSData::lng));
+        }
         break;
     }
 
