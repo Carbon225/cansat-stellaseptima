@@ -61,7 +61,10 @@
         "motor-on-time": {
             "value": "5.0"
         },
-        "motor-pin": {
+        "motor-pin-l": {
+            "value": "NC"
+        },
+        "motor-pin-h": {
             "value": "NC"
         },
 
@@ -165,7 +168,8 @@
             "dataflash.SPI_CS": "P0_30",
             "spif-driver.SPI_CS": "NC",
 
-            "motor-pin": "P0_22"
+            "motor-pin-l": "P0_22",
+            "motor-pin-h": "P0_23"
         }
     }
 }

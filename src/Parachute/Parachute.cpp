@@ -2,10 +2,9 @@
 #include "PressureData.h"
 
 #define AVG_SIZE 8
-#define MOTOR_ON true
 
-Parachute::Parachute(Sensor *baro, PinName motor)
-: _baro(baro), _motor(motor, !MOTOR_ON), _state(ParachuteState::Ascending)
+Parachute::Parachute(Sensor *baro, PinName motorL, PinName motorH)
+: _baro(baro), _motorL(motorL, 1), _motorH(motorH, 0), _state(ParachuteState::Ascending)
 {
 
 }
@@ -18,6 +17,11 @@ Parachute::~Parachute()
 ParachuteState Parachute::state()
 {
     return _state;
+}
+
+void Parachute::setGroundPressure(double pressure)
+{
+    _openingPressure = pressure + _pressureOffset;
 }
 
 void Parachute::start()
@@ -86,12 +90,14 @@ void Parachute::_parachuteTask()
 
 void Parachute::_motorOn()
 {
-    _motor = MOTOR_ON;
+    _motorL = 0;
+    _motorH = 1;
 }
 
 void Parachute::_motorOff()
 {
-    _motor = !MOTOR_ON;
+    _motorL = 1;
+    _motorH = 0;
 }
 
 void Parachute::open()

@@ -6,6 +6,7 @@
 
 #include "InternalDataStore.h"
 #include "CopyData.h"
+#include "DataToPC.h"
 #include "Partitions.h"
 #include "USBDrive.h"
 #include "ConfigManager.h"
@@ -43,7 +44,7 @@ namespace Sensors
 
 InternalDataStore internalFlash("/int");
 
-Parachute parachute(&Sensors::baro, MBED_CONF_APP_MOTOR_PIN);
+Parachute parachute(&Sensors::baro, MBED_CONF_APP_MOTOR_PIN_L, MBED_CONF_APP_MOTOR_PIN_H);
 
 Radio radio(
     MBED_CONF_APP_SPI1_MOSI,
@@ -216,11 +217,12 @@ int main(void)
     
     internalFlash.listFiles();
 
-    Sensors::gps.start(0);
+    // Sensors::gps.start(0);
     Sensors::baro.start(200);
     ThisThread::sleep_for(100);
     Sensors::sht.start(200);
 
+    parachute.setGroundPressure(ConfigManager::Instance().getGroundPressure());
     parachute.start();
 
     // internalFlash.schedule(&Sensors::baro, 2000);
