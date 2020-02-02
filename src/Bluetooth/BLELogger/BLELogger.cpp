@@ -1,6 +1,7 @@
 #include "BLELogger.h"
 // #include "USBSerial.h"
 #include "jlink_rtt.h"
+#include "CansatBLE.h"
 
 #define BLE_UART_BUF_SIZE 20
 
