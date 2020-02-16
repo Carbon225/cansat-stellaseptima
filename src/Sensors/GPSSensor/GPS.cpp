@@ -94,20 +94,20 @@ void GPS::_processSentence(int sentenceStart)
         }
         break;
 
-        case MINMEA_SENTENCE_ZDA: {
-            minmea_sentence_zda frame;
-            if (minmea_parse_zda(&frame, sentence)) {
-                _lastZDA = frame;
-                // LOGI("Time: %d:%d\n",
-                //     frame.time.minutes,
-                //     frame.time.seconds
-                // );
-            }
-            else {
-                LOGI("ZDA sentence invalid\n");
-            }
-        }
-        break;
+        // case MINMEA_SENTENCE_ZDA: {
+        //     minmea_sentence_zda frame;
+        //     if (minmea_parse_zda(&frame, sentence)) {
+        //         _lastZDA = frame;
+        //         // LOGI("Time: %d:%d\n",
+        //         //     frame.time.minutes,
+        //         //     frame.time.seconds
+        //         // );
+        //     }
+        //     else {
+        //         LOGI("ZDA sentence invalid\n");
+        //     }
+        // }
+        // break;
 
         default:
         break;
