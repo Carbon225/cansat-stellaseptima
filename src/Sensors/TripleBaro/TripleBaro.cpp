@@ -129,7 +129,8 @@ double TripleBaro::calculateTMR(double v1, double v2, double v3, const double D)
     d2 = tab[2] - tab[1];
 
     if (d1 < 0.f || d2 < 0.f) {
-        MBED_ERROR( MBED_MAKE_ERROR(MBED_MODULE_APPLICATION, MBED_ERROR_CODE_ASSERTION_FAILED), "Array not sorted" );
+        // MBED_ERROR( MBED_MAKE_ERROR(MBED_MODULE_APPLICATION, MBED_ERROR_CODE_ASSERTION_FAILED), "Array not sorted" );
+        return 0.f;
     }
 
     if (d1 > D) {
