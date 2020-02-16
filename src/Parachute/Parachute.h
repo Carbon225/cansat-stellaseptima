@@ -4,6 +4,8 @@
 #include "mbed.h"
 #include "Sensor.h"
 
+#define MBPERMETER 0.1145043
+
 enum ParachuteState {
     Ascending,
     Descending,
@@ -28,8 +30,8 @@ private:
     void _motorOn();
     void _motorOff();
 
-    const double _pressureOffset = 5.0;
-    volatile double _descentThreshold = 5.0;
+    const double _pressureOffset = 5.0 * MBPERMETER;
+    volatile double _descentThreshold = 2.0 * MBPERMETER;
     volatile double _openingPressure = 960.0;
 
     volatile ParachuteState _state;
