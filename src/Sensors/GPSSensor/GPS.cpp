@@ -2,8 +2,8 @@
 #include "BLELogger.h"
 #include "minmea.h"
 
-Thread GPS::_thread(osPriorityNormal, 512, NULL, "nmea");
-EventQueue GPS::_evQueue(16 * EVENTS_EVENT_SIZE);
+Thread GPS::_thread(osPriorityNormal, 1024, NULL, "nmea");
+EventQueue GPS::_evQueue(32 * EVENTS_EVENT_SIZE);
 
 GPS::GPS(PinName rx, PinName pps)
 : _serial(NC, rx),

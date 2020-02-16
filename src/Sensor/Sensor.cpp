@@ -1,8 +1,8 @@
 #include "Sensor.h"
 #include "BLELogger.h"
 
-Thread Sensor::_sensorsThread(osPriorityNormal, 1024, NULL, "sensors");
-EventQueue Sensor::_sensorsEvQueue(32 * EVENTS_EVENT_SIZE);
+Thread Sensor::_sensorsThread(osPriorityNormal, 2048, NULL, "sensors");
+EventQueue Sensor::_sensorsEvQueue(64 * EVENTS_EVENT_SIZE);
 
 Sensor::Sensor(const char name[])
 
