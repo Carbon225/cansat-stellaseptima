@@ -1,5 +1,6 @@
 #include "Parachute.h"
 #include "PressureData.h"
+#include "BLELogger.h"
 
 #define AVG_SIZE 8
 
@@ -21,7 +22,7 @@ ParachuteState Parachute::state()
 
 void Parachute::setGroundPressure(double pressure)
 {
-    _openingPressure = pressure + _pressureOffset;
+    _openingPressure = pressure - _pressureOffset;
 }
 
 void Parachute::start()
