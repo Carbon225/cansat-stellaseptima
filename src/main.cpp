@@ -217,7 +217,7 @@ int main(void)
     
     internalFlash.listFiles();
 
-    // Sensors::gps.start(0);
+    Sensors::gps.start(0);
     Sensors::baro.start(200);
     ThisThread::sleep_for(100);
     Sensors::sht.start(200);

@@ -28,9 +28,9 @@ private:
     void _motorOn();
     void _motorOff();
 
-    const double _pressureOffset = 15.0;
-    volatile double _descentThreshold = 15.0;
-    volatile double _openingPressure = 900.0;
+    const double _pressureOffset = 5.0;
+    volatile double _descentThreshold = 5.0;
+    volatile double _openingPressure = 960.0;
 
     volatile ParachuteState _state;
 
