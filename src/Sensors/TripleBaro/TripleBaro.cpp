@@ -30,7 +30,7 @@ mbed_error_status_t TripleBaro::setup()
 
 mbed_error_status_t TripleBaro::read()
 {;
-    _ms1.calcTemp();
+    // _ms1.calcTemp();
     double p1 = _ms1.calcPressure();
     
     _bmp1.getTemperature();
