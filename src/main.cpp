@@ -76,11 +76,11 @@ void packetGenerator()
 
         if (shtData->valid()) {
             LOGI("Temp1 %.2f Hum1 %.1f\n", shtData->temp1, shtData->hum1);
-            LOGI("Temp2 %.2f Hum2 %.1f\n", shtData->temp2, shtData->temp2);
-            LOGB("Temp %.2f Hum %.1f\n", shtData->temperature, shtData->humidity);
+            LOGI("Temp2 %.2f Hum2 %.1f\n", shtData->temp2, shtData->hum2);
+            LOGB("Temp %.2f Hum %.1f\n\r", shtData->temperature, shtData->humidity);
         }
         else {
-            LOGB("SHT data invalid\n");
+            LOGB("SHT data invalid\n\r");
         }
 
 
@@ -88,36 +88,36 @@ void packetGenerator()
             LOGI("Press1 %.2f\n", pressureData->pressure1);
             LOGI("Press2 %.2f\n", pressureData->pressure2);
             LOGI("Press3 %.2f\n", pressureData->pressure3);
-            LOGB("Press %.2f\n", pressureData->pressure);
+            LOGB("Press %.2f\n\r", pressureData->pressure);
         }
         else {
-            LOGB("Pressure data invalid\n");
+            LOGB("Pressure data invalid\n\r");
         }
 
 
         if (gpsData->valid()) {
-            LOGB("lat: %.4f lng: %.4f\n", gpsData->lat, gpsData->lng);
+            LOGB("lat: %.4f lng: %.4f\n\r", gpsData->lat, gpsData->lng);
         }
         else {
-           LOGB("GPS data invalid\n");
+           LOGB("GPS data invalid\n\r");
         }
 
 
         switch (parachute.state()) {
             case ParachuteState::Ascending:
-            LOGB("Parachute mode: Ascending\n");
+            LOGB("Parachute mode: Ascending\n\r");
             break;
 
             case ParachuteState::Descending:
-            LOGB("Parachute mode: Descending\n");
+            LOGB("Parachute mode: Descending\n\r");
             break;
 
             case ParachuteState::Opening:
-            LOGB("Parachute mode: Opening\n");
+            LOGB("Parachute mode: Opening\n\r");
             break;
 
             case ParachuteState::Done:
-            LOGB("Parachute mode: Done\n");
+            LOGB("Parachute mode: Done\n\r");
             break;
         }
 
@@ -141,26 +141,26 @@ void packetGenerator()
 
         // delete packet;
 
-        LOGI("---STATS---\n");
+        // LOGI("---STATS---\n");
 
-        mbed_stats_heap_t heap_stats;
-        mbed_stats_heap_get(&heap_stats);
-        LOGI("Reserved heap: %u\n", heap_stats.reserved_size);
-        LOGI("Current heap: %u\n", heap_stats.current_size);
-        LOGI("Max heap size: %u\n", heap_stats.max_size);
+        // mbed_stats_heap_t heap_stats;
+        // mbed_stats_heap_get(&heap_stats);
+        // LOGI("Reserved heap: %u\n", heap_stats.reserved_size);
+        // LOGI("Current heap: %u\n", heap_stats.current_size);
+        // LOGI("Max heap size: %u\n", heap_stats.max_size);
 
-        int cnt = osThreadGetCount();
-        mbed_stats_stack_t *stats = (mbed_stats_stack_t*) malloc(cnt * sizeof(mbed_stats_stack_t));
+        // int cnt = osThreadGetCount();
+        // mbed_stats_stack_t *stats = (mbed_stats_stack_t*) malloc(cnt * sizeof(mbed_stats_stack_t));
 
-        cnt = mbed_stats_stack_get_each(stats, cnt);
-        for (int i = 0; i < cnt; i++) {
-            LOGI("Thread: 0x%X, Stack size: %u, Max stack: %u\n", 
-                    stats[i].thread_id, stats[i].reserved_size, stats[i].max_size);
-        }
+        // cnt = mbed_stats_stack_get_each(stats, cnt);
+        // for (int i = 0; i < cnt; i++) {
+        //     LOGI("Thread: 0x%X, Stack size: %u, Max stack: %u\n", 
+        //             stats[i].thread_id, stats[i].reserved_size, stats[i].max_size);
+        // }
 
-        free(stats);
+        // free(stats);
 
-        LOGI("---STATS---\n");
+        // LOGI("---STATS---\n");
 
         ThisThread::sleep_for(1000);
     }
