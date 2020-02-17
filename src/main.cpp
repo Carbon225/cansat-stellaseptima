@@ -218,9 +218,9 @@ int main(void)
     internalFlash.listFiles();
 
     Sensors::gps.start(0);
-    Sensors::baro.start(200);
+    Sensors::baro.start(125);
     ThisThread::sleep_for(100);
-    Sensors::sht.start(800);
+    Sensors::sht.start(500);
 
     parachute.setGroundPressure(ConfigManager::Instance().getGroundPressure());
     parachute.start();
