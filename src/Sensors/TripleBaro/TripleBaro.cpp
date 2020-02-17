@@ -21,8 +21,18 @@ SensorData* TripleBaro::lastValue()
 mbed_error_status_t TripleBaro::setup()
 {
     _ms1.cmd_reset();
-    _bmp1.initialize();
-    _bmp2.initialize();
+    _bmp1.init(
+        BMP280_FILTER_OFF,
+        BMP280_OS_2X,
+        BMP280_OS_1X,
+        BMP280_ODR_125_MS
+    );
+    _bmp2.init(
+        BMP280_FILTER_OFF,
+        BMP280_OS_2X,
+        BMP280_OS_1X,
+        BMP280_ODR_125_MS
+    );
 
     LOGI("Triple baro started\n");
     return 0;
@@ -33,10 +43,10 @@ mbed_error_status_t TripleBaro::read()
     // _ms1.calcTemp();
     double p1 = _ms1.calcPressure();
     
-    _bmp1.getTemperature();
+    _bmp1.read();
     double p2 = _bmp1.getPressure();
     
-    _bmp2.getTemperature();
+    _bmp2.read();
     double p3 = _bmp2.getPressure();
 
     _last_value.pressure1 = p1;

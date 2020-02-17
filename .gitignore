@@ -6,5 +6,4 @@ mbed-os
 BUILD
 ms5611
 Sht31
-BMP280
 jlink_real_time_transfer

@@ -4,7 +4,7 @@
 #include "Sensor.h"
 #include "TMRData.h"
 #include "ms5611.h"
-#include "BMP280.h"
+#include "BMP280Lib.h"
 
 #define PRESS_DIVERGENCE 2.f
 
@@ -26,7 +26,7 @@ private:
     TMRData _last_value;
 
     ms5611 _ms1;
-    BMP280 _bmp1, _bmp2;
+    BMP280Lib _bmp1, _bmp2;
 };
 
 #endif
