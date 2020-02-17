@@ -229,6 +229,13 @@ int main(void)
     // internalFlash.schedule(&Sensors::sht, 2000);
     // internalFlash.schedule(&Sensors::gps, 2000);
 
+    radio.beginPacket(4);
+    radio.write(0xff);
+    radio.write(0xff);
+    radio.write(0xff);
+    radio.write(0xff);
+    radio.endPacket(false);
+
     packetgen_thread.start(packetGenerator);
 
     LOGI("\nSYSTEM READY\n\n");
