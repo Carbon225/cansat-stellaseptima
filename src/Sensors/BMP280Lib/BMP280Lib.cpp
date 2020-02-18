@@ -58,6 +58,7 @@ int BMP280Lib::read()
 
     ret = bmp280_get_comp_temp_double(&_temp, ucomp_data.uncomp_temp, &_dev);
     ret = bmp280_get_comp_pres_double(&_press, ucomp_data.uncomp_press, &_dev);
+    _press /= 100.0;
 
     return ret;
 }
