@@ -36,7 +36,7 @@ namespace Sensors
     DoubleTemp sht(
         "sht",
         MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL,
-        MBED_CONF_APP_I2C1_SDA, MBED_CONF_APP_I2C1_SCL
+        MBED_CONF_APP_I2C2_SDA, MBED_CONF_APP_I2C2_SCL
     );
 
     GPSSensor gps("gps", MBED_CONF_APP_GPS_RX, MBED_CONF_APP_GPS_PPS);
