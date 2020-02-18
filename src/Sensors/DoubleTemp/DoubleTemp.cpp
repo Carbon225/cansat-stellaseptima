@@ -27,9 +27,11 @@ mbed_error_status_t DoubleTemp::setup()
 mbed_error_status_t DoubleTemp::read()
 {
     double temp1 = _sht1.readTemperature();
+    ThisThread::sleep_for(20);
     double hum1 = _sht1.readHumidity();
 
     double temp2 = _sht2.readTemperature();
+    ThisThread::sleep_for(20);
     double hum2 = _sht2.readHumidity();
 
     _last_value.temp1 = temp1;
