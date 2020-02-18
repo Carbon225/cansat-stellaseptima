@@ -2,7 +2,7 @@
 #include "BLELogger.h"
 
 BMP280Sensor::BMP280Sensor(const char name[], PinName sda, PinName scl)
-: Sensor(name), BMP280(sda, scl), _last_value(name)
+: Sensor(name), BMP280Lib(sda, scl), _last_value(name)
 {
 
 }
@@ -19,15 +19,18 @@ SensorData* BMP280Sensor::lastValue()
 
 mbed_error_status_t BMP280Sensor::setup()
 {
-    BMP280::initialize();
+    BMP280Lib::init(
+        
+    );
     LOGI("BMP280 started\n");
     return MBED_SUCCESS;
 }
 
 mbed_error_status_t BMP280Sensor::read()
 {
-    float temp = BMP280::getTemperature();
-    float press = BMP280::getPressure();
+    BMP280Lib::read();
+    float temp = BMP280Lib::getTemperature();
+    float press = BMP280Lib::getPressure();
 
     _last_value.pressure = press;
 

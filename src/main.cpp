@@ -218,9 +218,9 @@ int main(void)
     internalFlash.listFiles();
 
     Sensors::gps.start(0);
-    Sensors::baro.start(200);
+    Sensors::baro.start(125);
     ThisThread::sleep_for(100);
-    Sensors::sht.start(800);
+    Sensors::sht.start(500);
 
     parachute.setGroundPressure(ConfigManager::Instance().getGroundPressure());
     parachute.start();
@@ -228,6 +228,13 @@ int main(void)
     // internalFlash.schedule(&Sensors::baro, 2000);
     // internalFlash.schedule(&Sensors::sht, 2000);
     // internalFlash.schedule(&Sensors::gps, 2000);
+
+    radio.beginPacket(4);
+    radio.write(0xff);
+    radio.write(0xff);
+    radio.write(0xff);
+    radio.write(0xff);
+    radio.endPacket(false);
 
     packetgen_thread.start(packetGenerator);
 

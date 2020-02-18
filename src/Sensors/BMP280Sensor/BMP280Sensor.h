@@ -2,11 +2,11 @@
 #define _BMP280SENSOR_H_
 
 #include "Sensor.h"
-#include "BMP280.h"
+#include "BMP280Lib.h"
 #include "PressureData.h"
 
 
-class BMP280Sensor : public Sensor, private BMP280
+class BMP280Sensor : public Sensor, private BMP280Lib
 {
 public:
     BMP280Sensor(const char name[], PinName sda, PinName scl);
