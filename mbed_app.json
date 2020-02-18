@@ -84,6 +84,9 @@
             "target.features_add": ["STORAGE"],
             "target.components_add": ["FLASHIAP", "DATAFLASH", "SPIF", "SD"],
 
+            "target.uart_0_fifo_size": 512,
+            "target.uart_1_fifo_size": 512,
+
             "dataflash.SPI_MOSI": "MBED_CONF_APP_SPI1_MOSI",
             "dataflash.SPI_MISO": "MBED_CONF_APP_SPI1_MISO",
             "dataflash.SPI_CLK": "MBED_CONF_APP_SPI1_CLK",
