@@ -14,6 +14,7 @@ public:
     virtual ~GPS();
 
     void begin();
+    void read();
 
     minmea_sentence_gll GLL();
     minmea_sentence_zda ZDA();
@@ -25,7 +26,7 @@ private:
     volatile char _buf[GPS_BUF_SIZE];
     volatile int _inputPos;
 
-    RawSerial _serial;
+    UARTSerial _serial;
     Event<void(int)> _sentenceEvent;
     InterruptIn _pps;
 

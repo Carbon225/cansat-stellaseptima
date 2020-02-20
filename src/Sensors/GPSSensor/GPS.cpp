@@ -6,13 +6,13 @@ Thread GPS::_thread(osPriorityNormal, 1024, NULL, "nmea");
 EventQueue GPS::_evQueue(32 * EVENTS_EVENT_SIZE);
 
 GPS::GPS(PinName rx, PinName pps)
-: _serial(NC, rx),
+: _serial(NC, rx, 115200),
   _pps(pps),
   _sentenceEvent(_evQueue.event(callback(this, &GPS::_processSentence))),
   _inputPos(0)
 {
-    _serial.baud(115200);
-    _serial.format(8, Serial::None, 1);
+    // _serial.baud(115200);
+    // _serial.format(8, Serial::None, 1)
 }
 
 GPS::~GPS()
@@ -36,20 +36,16 @@ void GPS::begin()
         _thread.start(callback(&GPS::_evQueue, &EventQueue::dispatch_forever));
     }
     
-    _serial.attach(callback(this, &GPS::_rxIrq), Serial::RxIrq);
+    // _serial.attach(callback(this, &GPS::_rxIrq), Serial::RxIrq);
     // _pps.rise(callback(this, &GPS::_ppsIrq));
 }
 
-void GPS::_ppsIrq()
-{
-    
-}
-
-void GPS::_rxIrq()
+void GPS::read()
 {
     static int sentenceStart = -1;
-    do {
-        char c = _serial.getc();
+    while (_serial.readable()) {;
+        char c;
+        _serial.read(&c, 1);
         
         if (c == '$') {
             sentenceStart = _inputPos;
@@ -59,10 +55,35 @@ void GPS::_rxIrq()
         _inputPos %= GPS_BUF_SIZE;
 
         if (c == '\r' && sentenceStart != -1) {
-            _sentenceEvent.post(sentenceStart);
+            _processSentence(sentenceStart);
             sentenceStart = -1;
         }
-    } while (_serial.readable());
+    }
+}
+
+void GPS::_ppsIrq()
+{
+    
+}
+
+void GPS::_rxIrq()
+{
+    // static int sentenceStart = -1;
+    // do {
+    //     char c = _serial.getc();
+        
+    //     if (c == '$') {
+    //         sentenceStart = _inputPos;
+    //     }
+
+    //     _buf[_inputPos++] = c;
+    //     _inputPos %= GPS_BUF_SIZE;
+
+    //     if (c == '\r' && sentenceStart != -1) {
+    //         _sentenceEvent.post(sentenceStart);
+    //         sentenceStart = -1;
+    //     }
+    // } while (_serial.readable());
 }
 
 void GPS::_processSentence(int sentenceStart)
@@ -98,10 +119,10 @@ void GPS::_processSentence(int sentenceStart)
         //     minmea_sentence_zda frame;
         //     if (minmea_parse_zda(&frame, sentence)) {
         //         _lastZDA = frame;
-        //         // LOGI("Time: %d:%d\n",
-        //         //     frame.time.minutes,
-        //         //     frame.time.seconds
-        //         // );
+        //         LOGI("Time: %d:%d\n",
+        //             frame.time.minutes,
+        //             frame.time.seconds
+        //         );
         //     }
         //     else {
         //         LOGI("ZDA sentence invalid\n");

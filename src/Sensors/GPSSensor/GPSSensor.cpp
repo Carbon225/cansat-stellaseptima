@@ -22,12 +22,13 @@ SensorData* GPSSensor::lastValue()
 
 mbed_error_status_t GPSSensor::setup()
 {
-    GPS::begin();
+    // GPS::begin();
     LOGI("GPS started\n");
     return MBED_SUCCESS;
 }
 
 mbed_error_status_t GPSSensor::read()
 {
+    GPS::read();
     return MBED_SUCCESS;
 }
