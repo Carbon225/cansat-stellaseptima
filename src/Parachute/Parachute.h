@@ -7,6 +7,7 @@
 #define MBPERMETER 0.1145043
 
 enum ParachuteState {
+    Idle,
     Ascending,
     Descending,
     Opening,
@@ -30,9 +31,14 @@ private:
     void _motorOn();
     void _motorOff();
 
-    const double _pressureOffset = 5.0 * MBPERMETER;
-    volatile double _descentThreshold = 2.0 * MBPERMETER;
-    volatile double _openingPressure = 960.0;
+    const double _maxPressureChange = 100.0 * MBPERMETER;
+
+    const double _openingOffset = 100.0 * MBPERMETER;
+    const double _ascentOffset = 300.0 * MBPERMETER;
+    const double _descentOffset = 100.0 * MBPERMETER;
+
+    volatile double _ascentPressure = 970.0;
+    volatile double _openingPressure = 1000.0;
 
     volatile ParachuteState _state;
 

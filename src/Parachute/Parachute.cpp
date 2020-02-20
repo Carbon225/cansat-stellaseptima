@@ -5,7 +5,7 @@
 #define AVG_SIZE 0
 
 Parachute::Parachute(Sensor *baro, PinName motorL, PinName motorH)
-: _baro(baro), _motorL(motorL, 1), _motorH(motorH, 0), _state(ParachuteState::Ascending)
+: _baro(baro), _motorL(motorL, 1), _motorH(motorH, 0), _state(ParachuteState::Idle)
 {
 
 }
@@ -22,7 +22,8 @@ ParachuteState Parachute::state()
 
 void Parachute::setGroundPressure(double pressure)
 {
-    _openingPressure = pressure - _pressureOffset;
+    _openingPressure = pressure - _openingOffset;
+    _ascentPressure = pressure - _ascentOffset;
 }
 
 void Parachute::start()
@@ -69,7 +70,7 @@ void Parachute::_parachuteTask()
             minPressure = pressure;
         }
 
-        if (abs(pressure - lastPressure) > 5.0) {
+        if (abs(pressure - lastPressure) > _maxPressureChange) {
             lastPressure = pressure;
             return;
         }
@@ -78,8 +79,14 @@ void Parachute::_parachuteTask()
     #endif
 
     switch (_state) {
+        case ParachuteState::Idle:
+        if (pressure < _ascentPressure) {
+            _state = ParachuteState::Ascending;
+        }
+        break;
+
         case ParachuteState::Ascending:
-        if (pressure - minPressure > _descentThreshold) {
+        if (pressure - minPressure > _descentOffset) {
             _state = ParachuteState::Descending;
         }
         break;

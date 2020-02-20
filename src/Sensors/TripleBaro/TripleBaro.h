@@ -6,7 +6,7 @@
 #include "ms5611.h"
 #include "BMP280Lib.h"
 
-#define PRESS_DIVERGENCE 2.f
+#define PRESS_DIVERGENCE 10.f
 
 class TripleBaro : public Sensor
 {
