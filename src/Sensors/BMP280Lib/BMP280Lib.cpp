@@ -84,13 +84,9 @@ int8_t BMP280Lib::i2c_reg_write(uint8_t sensorID, uint8_t reg_addr, uint8_t *reg
     
     char cmd[length + 1];
     cmd[0] = reg_addr;
-    for (int i = 0; i < length; i++) {
-        cmd[i + 1] = reg_data[i];
-    }
+    memcpy(cmd + 1, reg_data, length);
 
-    sensor->_i2c.lock();
-    int ret = sensor->_i2c.write(sensor->_addr, cmd, length);
-    sensor->_i2c.unlock();
+    int ret = sensor->_i2c.write(sensor->_addr, cmd, length + 1);
 
     return ret;
 }
@@ -98,11 +94,10 @@ int8_t BMP280Lib::i2c_reg_write(uint8_t sensorID, uint8_t reg_addr, uint8_t *reg
 int8_t BMP280Lib::i2c_reg_read(uint8_t sensorID, uint8_t reg_addr, uint8_t *reg_data, uint16_t length)
 {
     BMP280Lib *sensor = _sensors[sensorID];
+    I2C* i2c = &sensor->_i2c;
     
-    sensor->_i2c.lock();
     int ret = sensor->_i2c.write(sensor->_addr, (const char*)&reg_addr, 1);
     ret += sensor->_i2c.read(sensor->_addr,  (char*)reg_data, length);
-    sensor->_i2c.unlock();
 
     return ret;
 }
