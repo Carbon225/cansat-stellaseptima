@@ -73,13 +73,13 @@
         }
     },
     "macros": [
-        "MBED_HEAP_STATS_ENABLED=0",
-        "MBED_STACK_STATS_ENABLED=0"
+        
     ],
     "target_overrides": {
         "*": {
             "platform.default-serial-baud-rate": 115200,
             "platform.stdio-baud-rate": 115200,
+            "platform.crash-capture-enabled": false,
 
             "target.features_add": ["STORAGE"],
             "target.components_add": ["FLASHIAP", "DATAFLASH", "SPIF", "SD"],

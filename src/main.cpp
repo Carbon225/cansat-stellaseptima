@@ -104,6 +104,10 @@ void packetGenerator()
 
 
         switch (parachute.state()) {
+            case ParachuteState::Idle:
+            LOGB("Parachute mode: Idle\n\r");
+            break;
+
             case ParachuteState::Ascending:
             LOGB("Parachute mode: Ascending\n\r");
             break;
@@ -138,6 +142,8 @@ void packetGenerator()
         radio.endPacket(true);
 
         LOGI("%#x\n", packet);
+
+        LOGB("\n---------\n\n\r");
 
         // delete packet;
 
@@ -217,7 +223,7 @@ int main(void)
     
     internalFlash.listFiles();
 
-    Sensors::gps.start(0);
+    Sensors::gps.start(500);
     Sensors::baro.start(125);
     ThisThread::sleep_for(100);
     Sensors::sht.start(1000);
