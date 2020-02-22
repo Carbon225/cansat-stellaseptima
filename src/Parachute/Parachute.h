@@ -33,9 +33,9 @@ private:
 
     const double _maxPressureChange = 100.0 * MBPERMETER;
 
-    const double _openingOffset = 100.0 * MBPERMETER;
-    const double _ascentOffset = 300.0 * MBPERMETER;
-    const double _descentOffset = 100.0 * MBPERMETER;
+    const double _openingOffset = 20.0 * MBPERMETER;
+    const double _ascentOffset = 0.0 * MBPERMETER;
+    const double _descentOffset = 10.0 * MBPERMETER;
 
     volatile double _ascentPressure = 970.0;
     volatile double _openingPressure = 1000.0;

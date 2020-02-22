@@ -1,9 +1,9 @@
 #include "GPSPacket.h"
 
-#define LAT_MIN 50.02111
-#define LAT_MAX 50.14055
-#define LNG_MIN 19.50527
-#define LNG_MAX 19.88
+#define LAT_MIN 50.09425
+#define LAT_MAX 50.1087777
+#define LNG_MIN 19.8336194
+#define LNG_MAX 19.8679583
 
 GPSPacket::GPSPacket(int id, double lat, double lng)
 {
