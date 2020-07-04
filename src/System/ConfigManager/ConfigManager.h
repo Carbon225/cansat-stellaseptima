@@ -32,7 +32,7 @@ private:
     BlockDevice *_bd;
     LittleFileSystem _fs;
 
-    long _loraFreq = 4346E5;
+    long _loraFreq = 4342E5;
     double _groundPressure = 980.f;
 };
 
