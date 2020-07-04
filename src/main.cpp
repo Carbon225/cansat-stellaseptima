@@ -218,6 +218,7 @@ int main(void)
     if (internalFlash.init() != MBED_SUCCESS) {
         LOGI("Internal flash init failed\n");
         internalFlash.deinit();
+        mbed_event_queue()->call(&NVIC_SystemReset);
         return 1;
     }
     
